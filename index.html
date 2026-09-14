@@ -1,828 +1,364 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>全産業コングロマリット経営シミュレーター - グローバル制覇版</title>
-    <style>
-        :root {
-            --primary: #1e293b;
-            --primary-accent: #2563eb;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --card-inner: #0f172a;
-            --text: #f8fafc;
-            --sub-text: #94a3b8;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-yellow: #f59e0b;
-            --border: #334155;
+class CompanyState:
+    """企業の財務・組織・プライベート資産などの状態を保持するクラス"""
+
+    def __init__(self):
+        # 基本ステータス
+        self.year = 2026
+        self.month = 1
+        self.cash = 50_000_000  # 5000万円 (現金)
+        self.accounts_receivable = 10_000_000  # 売掛金
+        self.accounts_payable = 5_000_000  # 買掛金
+        self.credit_rating = "B"
+        self.loan_balance = 0
+        self.brand_value = 50
+        self.global_share = 1.0
+        self.world_gdp_share = 0.1
+        self.is_defacto_standard = False
+
+        # 1. 経営・リアリティ
+        self.economic_trend = "安定"
+        self.cost_multiplier = 1.0
+        self.demand_multiplier = 1.0
+
+        # 人材管理
+        self.employees = 10
+        self.employee_motivation = 80
+        self.bureaucracy_level = 0
+        self.decision_delay = 1.0
+
+        # サプライチェーン
+        self.supply_chain = "国内"
+        self.exchange_rate = 150.0
+        self.in_house_production = True
+
+        # 2. 世界市場・競合
+        self.regions = {
+            "北米": {
+                "share": 1.0,
+                "boss": "MegaCorp US",
+                "risk": "関税強化",
+                "anti_alliance": False,
+            },
+            "欧州": {
+                "share": 0.5,
+                "boss": "EuroGlobal",
+                "risk": "環境規制",
+                "anti_alliance": False,
+            },
+            "アジア": {
+                "share": 2.0,
+                "boss": "AsiaTech",
+                "risk": "為替変動",
+                "anti_alliance": False,
+            },
         }
+        self.vertical_integrated = False
+        self.lobbying_power = 10
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            font-size: 14px;
-            line-height: 1.4;
-            padding-bottom: 30px;
+        # 3. 資金の使い道
+        self.esg_score = 30
+        self.has_pro_team = False
+        self.smart_city_built = False
+        self.ceo_assets = {
+            "hq_building": False,
+            "private_jet": False,
+            "art_collection": 0,
         }
-
-        .container { max-width: 680px; margin: 0 auto; padding: 10px; }
-
-        .app-header {
-            text-align: center;
-            padding: 12px;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            margin-bottom: 10px;
-        }
-
-        .app-header h1 { font-size: 18px; font-weight: 800; color: #38bdf8; }
-        .company-tag { font-size: 11px; color: var(--sub-text); margin-top: 2px; }
-
-        .dashboard {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-        }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-
-        .stat-card { background: var(--card-inner); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); }
-        .stat-label { font-size: 10px; color: var(--sub-text); font-weight: 600; }
-        .stat-value { font-size: 13px; font-weight: 800; color: var(--text); }
-        .stat-value.money { color: #38bdf8; }
-        .stat-value.profit { color: var(--accent-green); }
-        .stat-value.debt { color: var(--accent-red); }
-
-        .btn-turn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 800;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        .btn-turn:active { opacity: 0.85; }
-
-        .nav-tabs {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 8px 10px;
-            font-size: 11px;
-            font-weight: 700;
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            color: var(--sub-text);
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        .tab-btn.active { background: var(--primary-accent); color: white; border-color: var(--primary-accent); }
-
-        .page-content { display: none; }
-        .page-content.active { display: block; }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-        }
-
-        .card-title { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-        .card-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #334155; color: #38bdf8; }
-        .card-badge.rival-owned { background: #991b1b; color: #fca5a5; }
-        .card-desc { font-size: 11px; color: var(--sub-text); margin-bottom: 8px; }
-        .card-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            margin-bottom: 8px;
-            padding: 6px 8px;
-            background: var(--card-inner);
-            border-radius: 6px;
-        }
-
-        .btn {
-            display: inline-block;
-            width: 100%;
-            padding: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            text-align: center;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .btn-primary { background: var(--primary-accent); color: white; }
-        .btn-danger { background: var(--accent-red); color: white; }
-        .btn-warning { background: var(--accent-yellow); color: black; }
-        .btn-success { background: var(--accent-green); color: white; }
-
-        .region-selector {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 10px;
-            overflow-x: auto;
-        }
-
-        .region-btn {
-            padding: 6px 10px;
-            font-size: 11px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: var(--card-inner);
-            color: var(--sub-text);
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .region-btn.active { background: #38bdf8; color: #0f172a; font-weight: 700; }
-        .region-btn.locked { opacity: 0.5; }
-
-        .progress-bar {
-            width: 100%;
-            background-color: #334155;
-            border-radius: 4px;
-            height: 8px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-        .progress-fill { height: 100%; background-color: #38bdf8; width: 0%; transition: width 0.3s; }
-
-        .log-section {
-            background: #020617;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
-            font-family: monospace;
-            font-size: 11px;
-        }
-
-        .log-box { height: 90px; overflow-y: auto; color: #38bdf8; line-height: 1.4; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="app-header">
-        <h1>🌐 GLOBAL CONGLOMERATE</h1>
-        <div class="company-tag">創業企業: ネクスト・アグリ＆テック (グローバル本社)</div>
-    </div>
-
-    <div class="dashboard">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">自己資金</div>
-                <div class="stat-value money" id="money-display">50億円</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">時期 / 景気</div>
-                <div class="stat-value" id="date-display">2026年 1Q (普通)</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">前四半期純利益</div>
-                <div class="stat-value profit" id="profit-display">8億円</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">自社時価総額</div>
-                <div class="stat-value" id="cap-display">100億円</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">有利子負債 (借入)</div>
-                <div class="stat-value debt" id="debt-display">0円</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">宿敵「アルファ」傘下</div>
-                <div class="stat-value debt" id="rival-display">資金: 100億円 (0社)</div>
-            </div>
-        </div>
-        <button class="btn-turn" onclick="nextQuarter()">▶ 1四半期（3ヶ月）経営を進める</button>
-    </div>
-
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchPage('page-world', this)">🌎 世界進出</button>
-        <button class="tab-btn" onclick="switchPage('page-ma', this)">🤝 国別TOB</button>
-        <button class="tab-btn" onclick="switchPage('page-biz', this)">🏢 国内事業</button>
-        <button class="tab-btn" onclick="switchPage('page-finance', this)">🏦 財務・銀行</button>
-        <button class="tab-btn" onclick="switchPage('page-stock', this)">📈 IR・増資</button>
-        <button class="tab-btn" onclick="switchPage('page-hr', this)">👥 人事・出世</button>
-    </div>
-
-    <!-- 世界進出 -->
-    <div id="page-world" class="page-content active">
-        <div class="card">
-            <div class="card-title">🌎 グローバル市場開拓マップ</div>
-            <div class="card-desc">海外の市場に進出することで、現地の主要産業・大手企業の株式買収が可能になります。</div>
-        </div>
-        <div id="region-unlock-list"></div>
-    </div>
-
-    <!-- M&A株式取得 -->
-    <div id="page-ma" class="page-content">
-        <div class="card">
-            <div class="card-title">🤝 国別・段階的株式TOB</div>
-            <div class="card-desc">進出済みの国を選択し、株式を買い集めます（30% ➔ 51% ➔ 100%）。</div>
-        </div>
-        <div class="region-selector" id="ma-region-tabs"></div>
-        <div id="ma-list"></div>
-    </div>
-
-    <!-- 自社事業 -->
-    <div id="page-biz" class="page-content">
-        <div class="card">
-            <div class="card-title">🏢 国内基幹事業（スマート農林水産＆IT）</div>
-            <div class="card-desc">創業基盤である事業を投資で拡張し、グローバル進出の資金を作ります。</div>
-        </div>
-        <div id="biz-list"></div>
-    </div>
-
-    <!-- 銀行融資・財務 -->
-    <div id="page-finance" class="page-content">
-        <div class="card">
-            <div class="card-title">🏦 財務・銀行融資（LBO・レバレッジ）</div>
-            <div class="card-desc">年利2%（四半期0.5%）で銀行から資金調達し、大型M&Aの原資にします。</div>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="btn btn-primary" onclick="borrowMoney(1000)">1000億円 借入</button>
-                <button class="btn btn-danger" onclick="repayMoney(1000)">1000億円 返済</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 株式市場・IR -->
-    <div id="page-stock" class="page-content">
-        <div class="card">
-            <div class="card-title">📈 株式市場マネジメント＆IR活動</div>
-            <div class="card-desc">公募増資で超大型M&A資金を調達したり、自社株買い・配当支払いで株価を吊り上げます。</div>
-        </div>
-        <div class="card">
-            <div class="card-title">💰 公募増資（新株発行）</div>
-            <div class="card-desc">自社時価総額の15%相当の株式を市場売却し、一気に資金を調達します。</div>
-            <button class="btn btn-primary" onclick="issueNewShares()">公募増資で資金調達</button>
-        </div>
-        <div class="card">
-            <div class="card-title">🎁 株主還元（自社株買い・配当）</div>
-            <div class="card-desc">手元資金で自社株を買い戻すか特別配当を出し、自社株価を引き上げます。</div>
-            <button class="btn btn-success" style="margin-bottom:6px;" onclick="buybackShares()">自社株買いを実施 (50億円準備)</button>
-            <button class="btn btn-warning" onclick="payDividends()">特別配当を実施 (100億円準備)</button>
-        </div>
-    </div>
-
-    <!-- 人事・組織 -->
-    <div id="page-hr" class="page-content">
-        <div class="card">
-            <div class="card-title">👥 人事組織・出世レース</div>
-            <div class="card-desc">毎年1Qの定期採用で人材を獲得。成果を出した社員を役員に抜擢し組織を強化します。</div>
-        </div>
-        <div id="recruitment-banner"></div>
-        <div id="employee-list"></div>
-    </div>
-
-    <div class="log-section">
-        <div class="log-box" id="log-box">
-            > 「ネクスト・アグリ＆テック」として創業。全17産業＋世界市場の制覇を目指します。
-        </div>
-    </div>
-</div>
-<script>
-    // --- 基本変数 ---
-    let money = 50;
-    let debt = 0;
-    let interestRate = 0.005; // 四半期金利 0.5%
-    let quarterCount = 1;
-    let lastNetProfit = 8;
-    let stockMultiplier = 1.0;
-
-    let economyState = "普通 ➖";
-    let economyMultiplier = 1.0;
-
-    // ライバル企業のステータス
-    let rivalMoney = 100;
-    let rivalAcquiredCount = 0;
-
-    // 日本式金額表記関数（〇兆〇億円）
-    function formatMoney(valueInOku) {
-        if (valueInOku === 0) return "0円";
-        let isNegative = valueInOku < 0;
-        let absValue = Math.abs(valueInOku);
-        let cho = Math.floor(absValue / 10000);
-        let oku = absValue % 10000;
-        let result = "";
-        if (cho > 0) result += cho.toLocaleString() + "兆";
-        if (oku > 0) result += oku.toLocaleString() + "億";
-        result += "円";
-        return isNegative ? "-" + result : result;
-    }
-
-    // グローバル地域データ
-    let regions = [
-        { id: 'jp', name: '🇯🇵 日本市場', cost: 0, unlocked: true, desc: '創業の地。成長は安定しているが全17産業の土台。' },
-        { id: 'asia', name: '🌏 アジア・オセアニア', cost: 500, unlocked: false, desc: '急成長する巨大市場。半導体やハイテク産業の宝庫。' },
-        { id: 'na', name: '🇺🇸 北米市場 (米国/カナダ)', cost: 5000, unlocked: false, desc: '世界最大IT・金融の本場。買収額は膨大だが高配当。' },
-        { id: 'eu', name: '🇪🇺 欧州・EU市場', cost: 25000, unlocked: false, desc: 'ブランド・ラグジュアリー・高級自動車産業の中心地。' }
-    ];
-
-    let currentSelectedRegion = 'jp';
-
-    // 自社基幹事業（創業企業: ネクスト・アグリ＆テック）
-    let businessTypes = {
-        smart_agri: { name: "スマート農園プラント", count: 1, baseCost: 30, baseRevenue: 8, maintenance: 2 },
-        cloud_sys: { name: "アグリテックデータ基盤", count: 0, baseCost: 150, baseRevenue: 40, maintenance: 10 },
-        logi_hub: { name: "自動化コールドチェーン拠点", count: 0, baseCost: 800, baseRevenue: 180, maintenance: 45 }
-    };
-
-    // 地域・業界別 M&Aターゲット企業（全17産業＋グローバル主要企業）
-    let maTargets = [
-        // 日本市場（全17産業＋α）
-        { region: 'jp', id: 'agriculture', industry: '農業', name: 'ジャパン・スマートアグリ', cost: 80, dividend: 9, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'forestry', industry: '林業', name: '日本森林ホールディングス', cost: 120, dividend: 12, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'fishery', industry: '水産業', name: 'オーシャン・オーガニック', cost: 250, dividend: 22, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'apparel', industry: '繊維・アパレル', name: 'グローバル・アパレル', cost: 500, dividend: 42, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'food', industry: '食品製造業', name: 'ワールド・フード・フーズ', cost: 1000, dividend: 80, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'service', industry: 'サービス業', name: 'オリエンタル・リゾート', cost: 1800, dividend: 140, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'retail', industry: '小売・卸売業', name: 'ユニバーサル・マート', cost: 3200, dividend: 240, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'transport', industry: '運輸・物流業', name: 'グローバル・ロジスティクス', cost: 5500, dividend: 400, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'construction', industry: '建設業', name: '大日本都市建設', cost: 9000, dividend: 650, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'realestate', industry: '不動産業', name: 'メトロ・プロパティーズ', cost: 15000, dividend: 1100, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'mining', industry: '鉱業', name: 'パシフィック・リソース', cost: 24000, dividend: 1700, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'steel', industry: '鉄鋼・金属', name: 'ナショナル・スチール', cost: 38000, dividend: 2600, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'machinery', industry: '機械製造業', name: '重工メカニクス', cost: 60000, dividend: 4000, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'pharma', industry: '医薬品産業', name: 'ノヴァ・ファーマ', cost: 95000, dividend: 6200, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'it', industry: '情報通信・IT', name: 'ワールド・クラウド', cost: 220000, dividend: 14000, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'auto', industry: '自動車産業', name: 'トータル・モビリティ', cost: 350000, dividend: 22000, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'finance', industry: '金融・保険業', name: 'メガ・ファイナンシャル', cost: 500000, dividend: 31000, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'electronics', industry: '電気・電子', name: 'エレクトロニクスINTL', cost: 700000, dividend: 42000, stockRatio: 0, owner: 'none' },
-        { region: 'jp', id: 'energy', industry: 'エネルギー', name: 'グローバル・パワー', cost: 1000000, dividend: 60000, stockRatio: 0, owner: 'none' },
-
-        // アジア市場
-        { region: 'asia', id: 'asia_semi', industry: '半導体', name: 'TSMCアジアンファブ', cost: 3500, dividend: 300, stockRatio: 0, owner: 'none' },
-        { region: 'asia', id: 'asia_ev', industry: 'バッテリー', name: 'アジア・エナジー・テック', cost: 12000, dividend: 950, stockRatio: 0, owner: 'none' },
-
-        // 北米市場
-        { region: 'na', id: 'na_tech', industry: 'ビッグテック', name: 'シリコンバレー・AIテクノロジーズ', cost: 80000, dividend: 5800, stockRatio: 0, owner: 'none' },
-        { region: 'na', id: 'na_finance', industry: '投資銀行', name: 'ウォール街・キャピタル', cost: 300000, dividend: 21000, stockRatio: 0, owner: 'none' },
-
-        // 欧州市場
-        { region: 'eu', id: 'eu_luxury', industry: '高級ブランド', name: 'メゾン・ド・パリ', cost: 500000, dividend: 35000, stockRatio: 0, owner: 'none' },
-        { region: 'eu', id: 'eu_auto', industry: '高級自動車', name: 'バイエルン・モータース', cost: 1200000, dividend: 80000, stockRatio: 0, owner: 'none' }
-    ];
-
-    // ページ切替
-    function switchPage(pageId, btnEl) {
-        document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-tabs .tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        btnEl.classList.add('active');
-    }
-
-    // 銀行融資・返済
-    function borrowMoney(amount) {
-        debt += amount;
-        money += amount;
-        log(`【財務】銀行より ${formatMoney(amount)} を借入しました。（年利2%）`);
-        updateUI();
-    }
-
-    function repayMoney(amount) {
-        if (money >= amount && debt >= amount) {
-            debt -= amount;
-            money -= amount;
-            log(`【財務】借入金 ${formatMoney(amount)} を返済しました。`);
-            updateUI();
-        } else {
-            alert("返済資金が不足しているか、返済額が借入残高を超えています。");
-        }
-    }
-
-    // 海外エリア開放
-    function unlockRegion(regionId) {
-        let reg = regions.find(r => r.id === regionId);
-        if (!reg || reg.unlocked) return;
-
-        if (money >= reg.cost) {
-            money -= reg.cost;
-            reg.unlocked = true;
-            stockMultiplier *= 1.25;
-            log(`【🌐 海外進出】${reg.name} への進出拠点を設立しました！グローバル評価が上昇。`);
-            updateUI();
-        } else {
-            alert(`進出資金が不足しています。（必要額: ${formatMoney(reg.cost)}）`);
-        }
-    }
-
-    function selectMARegion(regionId) {
-        currentSelectedRegion = regionId;
-        renderMAUI();
-    }
-
-    // 自社事業増設
-    function buyBusiness(key) {
-        let b = businessTypes[key];
-        let cost = Math.floor(b.baseCost * Math.pow(1.3, b.count));
-        if (money >= cost) {
-            money -= cost;
-            businessTypes[key].count++;
-            log(`【事業拡張】${b.name} を増設しました。`);
-            updateUI();
-        } else {
-            alert("投資資金が不足しています。");
-        }
-    }
-
-    // TOB・株式段階買収（30% -> 51% -> 100%）
-    function buyStockTarget(id) {
-        let target = maTargets.find(t => t.id === id);
-        if (!target) return;
-
-        let targetRatio = 30;
-        if (target.stockRatio === 30) targetRatio = 51;
-        else if (target.stockRatio === 51) targetRatio = 100;
-        else if (target.stockRatio === 100) return;
-
-        let buyPercent = targetRatio - target.stockRatio;
-        let requiredCost = Math.floor(target.cost * (buyPercent / 100));
-
-        if (target.owner === 'rival') {
-            requiredCost = Math.floor(requiredCost * 1.5); // ライバル保有分は対抗買収プレミア1.5倍
-        }
-
-        if (money >= requiredCost) {
-            money -= requiredCost;
-            target.stockRatio = targetRatio;
-
-            if (targetRatio === 100) {
-                target.owner = 'player';
-                log(`【🎉 完全子会社化】「${target.name}」の株式100%を完全取得しました！`);
-            } else {
-                target.owner = 'player';
-                log(`【📊 株式買増】「${target.name}」の株式を ${targetRatio}% まで買い増しました。`);
-            }
-            updateUI();
-        } else {
-            alert(`株式買収資金が不足しています。（必要額: ${formatMoney(requiredCost)}）`);
-        }
-    }
-    // 株式IR活動
-    function issueNewShares() {
-        let currentMarketCap = Math.max(50, Math.floor(lastNetProfit * 4 * 12 * stockMultiplier));
-        let raisedAmount = Math.floor(currentMarketCap * 0.15);
-
-        money += raisedAmount;
-        stockMultiplier *= 0.90; // 株式希薄化
-        log(`【📈 公募増資】新株を発行し、市場から ${formatMoney(raisedAmount)} を調達しました。（株価は一時的に希薄化）`);
-        updateUI();
-    }
-
-    function buybackShares() {
-        if (money < 50) {
-            alert("資金が不足しています。（必要額: 50億円）");
-            return;
-        }
-        money -= 50;
-        stockMultiplier *= 1.10;
-        log(`【💹 自社株買い】50億円の自社株買いを実施。株主価値向上により時価総額がアップ！`);
-        updateUI();
-    }
-
-    function payDividends() {
-        if (money < 100) {
-            alert("資金が不足しています。（必要額: 100億円）");
-            return;
-        }
-        money -= 100;
-        stockMultiplier *= 1.15;
-        log(`【🎁 特別配当】100億円の特別配当を実施。市場からの評価が急上昇しました！`);
-        updateUI();
-    }
-
-    // 人事・組織システム
-    let employees = [
-        { id: 1, name: "佐藤 健太", skill: 75, position: "役員", exp: 120, salary: 2, specialty: "事業収益UP (+15%)" },
-        { id: 2, name: "鈴木 美咲", skill: 60, position: "課長", exp: 40, salary: 1, specialty: "維持費削減 (-10%)" }
-    ];
-    let nextEmployeeId = 3;
-    let isRecruitmentPeriod = true;
-
-    function recruitEmployee(type) {
-        if (!isRecruitmentPeriod) {
-            alert("採用活動は毎年第1四半期（1Q）のみ実施可能です。");
-            return;
-        }
-
-        let cost = type === 'fresh' ? 10 : 50;
-        if (money < cost) {
-            alert("採用資金が不足しています。");
-            return;
-        }
-
-        money -= cost;
-        let names = ["高橋 翔", "Jonathon Smith", "渡辺 陸", "Elena Rostova", "山本 拓海", "Li Wei"];
-        let randomName = names[Math.floor(Math.random() * names.length)];
-        let newSkill = type === 'fresh' ? Math.floor(Math.random() * 30) + 30 : Math.floor(Math.random() * 40) + 50;
-        let specialties = ["事業収益UP (+15%)", "維持費削減 (-10%)"];
-
-        employees.push({
-            id: nextEmployeeId++,
-            name: randomName,
-            skill: newSkill,
-            position: "一般",
-            exp: 0,
-            salary: type === 'fresh' ? 1 : 2,
-            specialty: specialties[Math.floor(Math.random() * specialties.length)]
-        });
-
-        log(`【採用】${type === 'fresh' ? '新卒' : '中途'}社員「${randomName}」が入社しました。`);
-        updateUI();
-    }
-
-    function promoteEmployee(empId) {
-        let emp = employees.find(e => e.id === empId);
-        if (!emp) return;
-
-        if (emp.position === "一般" && emp.exp >= 30) {
-            emp.position = "課長";
-            emp.salary += 1;
-            log(`【昇進】${emp.name} が「課長」に昇進しました！`);
-        } else if (emp.position === "課長" && emp.exp >= 80) {
-            emp.position = "部長";
-            emp.salary += 2;
-            log(`【昇進】${emp.name} が「部長」に昇進しました！`);
-        } else if (emp.position === "部長" && emp.exp >= 150) {
-            emp.position = "役員";
-            emp.salary += 3;
-            log(`【★重役抜擢】${emp.name} が「役員」に就任！`);
-        } else {
-            alert("昇進に必要な経験（実績）が不足しています。");
-        }
-        updateUI();
-    }
-
-    // 景気変動
-    function updateEconomy() {
-        let rand = Math.random();
-        if (rand < 0.15) {
-            economyState = "好景気 📈";
-            economyMultiplier = 1.3;
-        } else if (rand < 0.30) {
-            economyState = "不景気 📉";
-            economyMultiplier = 0.7;
-        } else {
-            economyState = "普通 ➖";
-            economyMultiplier = 1.0;
-        }
-    }
-
-    // ライバルのターン処理
-    function processRivalTurn() {
-        let rivalIncome = 20 + Math.floor(rivalAcquiredCount * 20);
-        maTargets.forEach(t => {
-            if (t.owner === 'rival') rivalIncome += t.dividend;
-        });
-        rivalMoney += rivalIncome;
-
-        let availableTargets = maTargets.filter(t => t.stockRatio < 100 && t.cost <= rivalMoney);
-        if (availableTargets.length > 0) {
-            availableTargets.sort((a, b) => b.cost - a.cost);
-            let targetToBuy = availableTargets[0];
-
-            rivalMoney -= targetToBuy.cost;
-            targetToBuy.stockRatio = 100;
-            targetToBuy.owner = 'rival';
-            rivalAcquiredCount++;
-
-            log(`【⚠️ 警告】アルファ社が [${targetToBuy.industry}]「${targetToBuy.name}」を100%TOB買収しました！`);
-        }
-    }
-
-    // ターン進行（四半期更新）
-    function nextQuarter() {
-        quarterCount++;
-        let currentQ = ((quarterCount - 1) % 4) + 1;
-        isRecruitmentPeriod = (currentQ === 1);
-
-        updateEconomy(); // 景気変動
-
-        let totalSalary = 0;
-        let revenueMultiplier = 1.0;
-        let maintenanceMultiplier = 1.0;
-
-        employees.forEach(emp => {
-            emp.exp += Math.floor(emp.skill / 10);
-            totalSalary += emp.salary;
-
-            if (emp.position === "役員") {
-                if (emp.specialty.includes("事業収益UP")) revenueMultiplier += 0.15;
-                if (emp.specialty.includes("維持費削減")) maintenanceMultiplier -= 0.10;
-            }
-        });
-
-        // 収入計算
-        let grossRevenue = 0;
-        let totalMaintenance = 0;
-
-        for (let key in businessTypes) {
-            let b = businessTypes[key];
-            grossRevenue += Math.floor(b.count * b.baseRevenue * revenueMultiplier);
-            let maint = Math.floor(b.maintenance * b.count + Math.pow(b.count, 1.7) * 2);
-            totalMaintenance += Math.floor(maint * Math.max(0.5, maintenanceMultiplier));
-        }
-
-        // M&A配当計算
-        let maDividends = 0;
-        maTargets.forEach(t => {
-            if (t.stockRatio > 0 && t.owner === 'player') {
-                maDividends += Math.floor(t.dividend * (t.stockRatio / 100));
-            }
-        });
-
-        // 景気変動適用
-        grossRevenue = Math.floor(grossRevenue * economyMultiplier);
-        maDividends = Math.floor(maDividends * economyMultiplier);
-
-        // 利息支払い
-        let interestPayment = Math.floor(debt * interestRate);
-
-        let corporateOverhead = Math.floor(Math.pow(quarterCount, 1.1) * 2) + totalSalary;
-        let netProfit = grossRevenue + maDividends - totalMaintenance - corporateOverhead - interestPayment;
-
-        money += netProfit;
-        lastNetProfit = netProfit;
-
-        processRivalTurn();
-
-        if (money < 0) {
-            alert("資金ショートが発生しデフォルト（債務不履行）となりました。破産・上場廃止です。");
-            location.reload();
-        }
-
-        log(`${Math.floor((quarterCount-1)/4)+2026}年 Q${currentQ} [景気:${economyState}]: 純利益 ${formatMoney(netProfit)} (利息支払: ${formatMoney(interestPayment)})`);
-        updateUI();
-    }
-
-    // 画面UI描画・更新
-    function updateUI() {
-        document.getElementById('money-display').innerText = formatMoney(money);
-        let year = Math.floor((quarterCount - 1) / 4) + 2026;
-        let q = ((quarterCount - 1) % 4) + 1;
-        document.getElementById('date-display').innerText = `${year}年 Q${q} (${economyState})`;
-        document.getElementById('profit-display').innerText = formatMoney(lastNetProfit);
-        document.getElementById('debt-display').innerText = formatMoney(debt);
-        
-        let marketCap = Math.max(50, Math.floor(lastNetProfit * 4 * 12 * stockMultiplier));
-        document.getElementById('cap-display').innerText = formatMoney(marketCap);
-        document.getElementById('rival-display').innerText = `資金: ${formatMoney(rivalMoney)} (${rivalAcquiredCount}社)`;
-
-        renderWorldUI();
-        renderBizUI();
-        renderMAUI();
-        renderHRUI();
-    }
-
-    function renderWorldUI() {
-        let container = document.getElementById('region-unlock-list');
-        let html = '';
-        regions.forEach(r => {
-            if (r.unlocked) {
-                html += `<div class="card" style="border-color:#10b981;">
-                    <div class="card-title"><span>${r.name}</span> <span class="card-badge" style="background:#10b981; color:white;">進出完了</span></div>
-                    <div class="card-desc">${r.desc}</div>
-                </div>`;
-            } else {
-                html += `<div class="card">
-                    <div class="card-title"><span>${r.name}</span> <span class="card-badge">未進出</span></div>
-                    <div class="card-desc">${r.desc}</div>
-                    <div class="card-info"><span>市場進出投資コスト: <b>${formatMoney(r.cost)}</b></span></div>
-                    <button class="btn btn-primary" onclick="unlockRegion('${r.id}')">${formatMoney(r.cost)} で市場開拓</button>
-                </div>`;
-            }
-        });
-        container.innerHTML = html;
-    }
-
-    function renderBizUI() {
-        let container = document.getElementById('biz-list');
-        let html = '';
-        for (let key in businessTypes) {
-            let b = businessTypes[key];
-            let cost = Math.floor(b.baseCost * Math.pow(1.3, b.count));
-            let maint = Math.floor(b.maintenance * b.count + Math.pow(b.count, 1.7) * 2);
-            html += `<div class="card">
-                <div class="card-title"><span>⚡ ${b.name}</span> <span class="card-badge">${b.count} 拠点</span></div>
-                <div class="card-info"><span>追加建設コスト: <b>${formatMoney(cost)}</b></span><span>基礎収益: <b>+${formatMoney(b.baseRevenue)}</b></span></div>
-                <div class="card-info"><span>次回維持コスト: <b>-${formatMoney(maint)}</b></span></div>
-                <button class="btn btn-primary" onclick="buyBusiness('${key}')">${formatMoney(cost)} で拡張</button>
-            </div>`;
-        }
-        container.innerHTML = html;
-    }
-
-    function renderMAUI() {
-        let tabContainer = document.getElementById('ma-region-tabs');
-        let tabHtml = '';
-        regions.forEach(r => {
-            if (r.unlocked) {
-                let activeClass = r.id === currentSelectedRegion ? 'active' : '';
-                tabHtml += `<button class="region-btn ${activeClass}" onclick="selectMARegion('${r.id}')">${r.name}</button>`;
-            } else {
-                tabHtml += `<button class="region-btn locked" disabled>${r.name} (未開放)</button>`;
-            }
-        });
-        tabContainer.innerHTML = tabHtml;
-
-        let container = document.getElementById('ma-list');
-        let html = '';
-        let targets = maTargets.filter(t => t.region === currentSelectedRegion);
-
-        targets.forEach(t => {
-            let nextRatio = 30;
-            if (t.stockRatio === 30) nextRatio = 51;
-            else if (t.stockRatio === 51) nextRatio = 100;
-
-            let buyPercent = nextRatio - t.stockRatio;
-            let cost = Math.floor(t.cost * (buyPercent / 100));
-            if (t.owner === 'rival') cost = Math.floor(cost * 1.5);
-
-            if (t.stockRatio === 100) {
-                html += `<div class="card" style="border-color:#10b981;">
-                    <div class="card-title"><span>✅ ${t.name}</span> <span class="card-badge" style="background:#10b981; color:white;">完全子会社 (100%)</span></div>
-                    <div class="progress-bar"><div class="progress-fill" style="width:100%; background:#10b981;"></div></div>
-                    <div class="card-info"><span>四半期配当還元: <b>+${formatMoney(t.dividend)}</b></span></div>
-                </div>`;
-            } else if (t.owner === 'rival') {
-                html += `<div class="card" style="border-color:#ef4444;">
-                    <div class="card-title"><span>⚠️ ${t.name}</span> <span class="card-badge rival-owned">ライバル独占 (100%)</span></div>
-                    <div class="card-info"><span>TOB奪還コスト: <b>${formatMoney(cost)}</b></span></div>
-                    <button class="btn btn-warning" onclick="buyStockTarget('${t.id}')">${formatMoney(cost)} でTOB仕掛け</button>
-                </div>`;
-            } else {
-                html += `<div class="card">
-                    <div class="card-title"><span>🏢 ${t.name}</span> <span class="card-badge">${t.industry} (保有: ${t.stockRatio}%)</span></div>
-                    <div class="progress-bar"><div class="progress-fill" style="width:${t.stockRatio}%;"></div></div>
-                    <div class="card-info"><span>次回(${nextRatio}%へ)コスト: <b>${formatMoney(cost)}</b></span><span>予想配当: <b>+${formatMoney(Math.floor(t.dividend * (nextRatio/100)))}/Q</b></span></div>
-                    <button class="btn btn-danger" onclick="buyStockTarget('${t.id}')">${formatMoney(cost)} で ${nextRatio}% まで買い増し</button>
-                </div>`;
-            }
-        });
-        container.innerHTML = html;
-    }
-
-    function renderHRUI() {
-        let banner = document.getElementById('recruitment-banner');
-        if (isRecruitmentPeriod) {
-            banner.innerHTML = `<div class="card" style="border-color:#38bdf8;">
-                <div class="card-title">📢 年1回の定期採用（第1四半期限定）</div>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn btn-primary" onclick="recruitEmployee('fresh')">新卒採用 (10億円)</button>
-                    <button class="btn btn-success" onclick="recruitEmployee('mid')">中途採用 (50億円)</button>
-                </div>
-            </div>`;
-        } else {
-            banner.innerHTML = `<div class="card"><div class="card-desc">※現在の四半期は採用期間外です。（毎年1Qに採用可能）</div></div>`;
-        }
-
-        let list = document.getElementById('employee-list');
-        let html = '';
-        employees.forEach(emp => {
-            html += `<div class="card">
-                <div class="card-title"><span>👔 ${emp.name} (${emp.position})</span> <span class="card-badge">能力: ${emp.skill}</span></div>
-                <div class="card-desc">特性: <b>${emp.specialty}</b></div>
-                <div class="card-info"><span>経験値: <b>${emp.exp} pt</b></span><span>役職手当: <b>-${formatMoney(emp.salary)}/Q</b></span></div>
-                <button class="btn btn-primary" onclick="promoteEmployee(${emp.id})">昇進テスト・抜擢</button>
-            </div>`;
-        });
-        list.innerHTML = html;
-    }
-
-    function log(msg) {
-        let box = document.getElementById('log-box');
-        box.innerHTML = `> ${msg}<br>` + box.innerHTML;
-    }
-
-    updateUI();
-</script>
-</body>
-</html>
+        self.future_tech = {"startup_investments": 0, "space_program": False}
+import random
+import sys
+
+
+class GameManager:
+    """ゲームの全ロジックと進行を管理するクラス"""
+
+    def __init__(self, state):
+        self.state = state
+
+    def trigger_random_events(self):
+        """1. 経済トレンド・危機管理イベント"""
+        print("\n--- [月次イベント発生] ---")
+        event_roll = random.random()
+
+        if event_roll < 0.15:
+            self.state.economic_trend = "インフレ"
+            self.state.cost_multiplier = 1.25
+            self.state.demand_multiplier = 0.9
+            print(
+                "【イベント】インフレが発生！ 原材料価格が高騰しています。(コスト+25%)"
+            )
+        elif event_roll < 0.30:
+            self.state.economic_trend = "バズり"
+            self.state.cost_multiplier = 1.0
+            self.state.demand_multiplier = 1.8
+            print(
+                "【イベント】SNSで商品が大バズり！ 需要が急増しています！(需要+80%)"
+            )
+        elif event_roll < 0.40:
+            self.state.economic_trend = "悪天候"
+            self.state.cost_multiplier = 1.1
+            self.state.demand_multiplier = 0.7
+            print(
+                "【イベント】悪天候が続いています。物流遅延と客足低下が発生。(需要-30%)"
+            )
+        elif event_roll < 0.50:
+            self.state.economic_trend = "原材料高騰"
+            self.state.cost_multiplier = 1.4
+            self.state.demand_multiplier = 1.0
+            print(
+                "【イベント】サプライチェーンの乱れにより原材料が高騰。(コスト+40%)"
+            )
+        else:
+            self.state.economic_trend = "安定"
+            self.state.cost_multiplier = 1.0
+            self.state.demand_multiplier = 1.0
+            print("【イベント】市場環境は比較的一定です。")
+
+        self.state.exchange_rate += random.uniform(-3.0, 3.0)
+
+        # SNS炎上対応
+        if random.random() < 0.12:
+            print(
+                "\n⚠️【危機管理】SNSで製品に対するクレームが発生し、炎上リスクが高まっています！"
+            )
+            print("1: 迅速に謝罪し回収を実施する (費用: 500万円)")
+            print("2: 静観・無視する (費用: 0円, ブランド低下)")
+            choice = input("選択 (1/2): ")
+            if choice == "1":
+                self.state.cash -= 5_000_000
+                self.state.brand_value = min(100, self.state.brand_value + 2)
+                print("迅速な対応によりブランドの信頼を守りました。")
+            else:
+                self.state.brand_value = max(0, self.state.brand_value - 15)
+                self.state.demand_multiplier *= 0.6
+                print("対応の遅れが批判され、需要とブランド価値が低下しました。")
+
+    def update_monthly_finance(self):
+        """財務・組織ダイナミクス・黒字倒産処理"""
+        # 大企業病の計算
+        if self.state.employees > 100:
+            self.state.bureaucracy_level = min(
+                100, int((self.state.employees - 100) * 0.2)
+            )
+            self.state.decision_delay = 1.0 + (self.state.bureaucracy_level / 100)
+        else:
+            self.state.bureaucracy_level = 0
+            self.state.decision_delay = 1.0
+
+        # 離職判定
+        if self.state.employee_motivation < 40:
+            quitters = random.randint(
+                1, max(2, int(self.state.employees * 0.1))
+            )
+            self.state.employees = max(1, self.state.employees - quitters)
+            print(
+                f"⚠️ モチベーション低下により従業員が {quitters} 名離職しました。"
+            )
+
+        # 損益計算
+        base_rev = self.state.employees * 2_000_000 * (self.state.brand_value / 50)
+        actual_rev = int(
+            base_rev
+            * self.state.demand_multiplier
+            * (self.state.global_share / 2)
+            / self.state.decision_delay
+        )
+
+        base_cost = self.state.employees * 1_200_000
+        supply_mod = 1.2 if self.state.supply_chain == "グローバル" else 1.0
+        if not self.state.in_house_production:
+            supply_mod *= 1.15
+        actual_cost = int(
+            base_cost * self.state.cost_multiplier * supply_mod
+        )
+
+        # キャッシュフロー処理
+        cash_in = self.state.accounts_receivable
+        cash_out = self.state.accounts_payable + int(
+            self.state.loan_balance * 0.01
+        )
+
+        self.state.cash += cash_in - cash_out
+        self.state.accounts_receivable = actual_rev
+        self.state.accounts_payable = actual_cost
+
+        print("\n--- [月次財務報告] ---")
+        print(f"今月回収(現金イン): +{cash_in:,}円")
+        print(f"今月支払(現金アウト): -{cash_out:,}円")
+        print(f"現在の現金残高: {self.state.cash:,}円")
+
+        # 黒字倒産チェック
+        if self.state.cash < 0:
+            print(
+                "\n🚨【黒字倒産】資金繰りがショートし、会社は倒産しました。"
+            )
+            sys.exit()
+
+    def check_victory_conditions(self):
+        """クリア判定"""
+        print("\n--- [世界市場・勝利条件進捗] ---")
+        print(f"世界市場シェア: {self.state.global_share:.2f}% (目標: 50.0%)")
+        print(f"世界GDPシェア: {self.state.world_gdp_share:.2f}% (目標: 10.0%)")
+        print(
+            f"デファクトスタンダード: {'確立済み' if self.state.is_defacto_standard else '未確立'}"
+        )
+
+        if (
+            self.state.global_share >= 50.0
+            or self.state.world_gdp_share >= 10.0
+            or self.state.is_defacto_standard
+        ):
+            print("\n🎉🎉🎉【ゲームクリア！】世界経済の掌握に成功しました！🎉🎉🎉")
+            sys.exit()
+
+    def menu_management(self):
+        """経営・組織ダイナミクス"""
+        print("\n--- 【1. 経営・組織管理】 ---")
+        print(
+            f"従業員数: {self.state.employees}人 | モチベーション: {self.state.employee_motivation}/100 | 大企業病: {self.state.bureaucracy_level}%"
+        )
+        print(
+            f"サプライチェーン: {self.state.supply_chain} | 製造方式: {'内製' if self.state.in_house_production else '外注'}"
+        )
+        print("1: 従業員採用 (100万円/人)")
+        print("2: 給与・福利厚生強化 (500万円, モチベーション+15)")
+        print("3: サプライチェーン切替 (国内 ⇔ グローバル)")
+        print("4: 製造の内製 / 外注 切替")
+        print("5: 銀行融資申請")
+        print("6: 戻る")
+
+        cmd = input("選択: ")
+        if cmd == "1":
+            n = int(input("採用人数: "))
+            cost = n * 1_000_000
+            if self.state.cash >= cost:
+                self.state.cash -= cost
+                self.state.employees += n
+                print(f"{n} 名採用しました。")
+        elif cmd == "2":
+            if self.state.cash >= 5_000_000:
+                self.state.cash -= 5_000_000
+                self.state.employee_motivation = min(
+                    100, self.state.employee_motivation + 15
+                )
+        elif cmd == "3":
+            self.state.supply_chain = (
+                "グローバル" if self.state.supply_chain == "国内" else "国内"
+            )
+        elif cmd == "4":
+            self.state.in_house_production = not self.state.in_house_production
+        elif cmd == "5":
+            amt = int(input("融資希望額: "))
+            if self.state.cash >= 0:
+                self.state.cash += amt
+                self.state.loan_balance += amt
+
+    def menu_global_strategy(self):
+        """世界市場制覇・競合・ロビー"""
+        print("\n--- 【2. 世界市場・競合交渉】 ---")
+        print(f"ロビー力: {self.state.lobbying_power}")
+        print("1: 現地化投資 (2,000万円, シェア拡大)")
+        print("2: 地域競合M&A (1億円)")
+        print("3: ロビー活動 (3,000万円, 規制誘導・デファクト化)")
+        print("4: 垂直統合の推進 (8,000万円, コスト削減)")
+        print("5: 戻る")
+
+        cmd = input("選択: ")
+        if cmd == "1" and self.state.cash >= 20_000_000:
+            self.state.cash -= 20_000_000
+            self.state.global_share += 2.0
+        elif cmd == "2" and self.state.cash >= 100_000_000:
+            self.state.cash -= 100_000_000
+            self.state.global_share += 8.0
+            self.state.world_gdp_share += 1.5
+        elif cmd == "3" and self.state.cash >= 30_000_000:
+            self.state.cash -= 30_000_000
+            self.state.lobbying_power += 20
+            if self.state.lobbying_power >= 60:
+                self.state.is_defacto_standard = True
+        elif cmd == "4" and self.state.cash >= 80_000_000:
+            self.state.cash -= 80_000_000
+            self.state.vertical_integrated = True
+            self.state.cost_multiplier *= 0.75
+
+    def menu_spending(self):
+        """資金の使い道"""
+        print("\n--- 【3. 資金の多角活用】 ---")
+        print("1: CSR/ESG投資 (1,000万円)")
+        print("2: プロチーム買収 (5,000万円)")
+        print("3: 企業城下町建設 (1億5,000万円)")
+        print("4: CEOプライベート投資 (自社ビル/ジェット/美術品)")
+        print("5: 宇宙開発出資 (1億円)")
+        print("6: 戻る")
+
+        cmd = input("選択: ")
+        if cmd == "1" and self.state.cash >= 10_000_000:
+            self.state.cash -= 10_000_000
+            self.state.esg_score += 15
+            self.state.brand_value = min(100, self.state.brand_value + 10)
+        elif cmd == "2" and self.state.cash >= 50_000_000:
+            self.state.cash -= 50_000_000
+            self.state.has_pro_team = True
+        elif cmd == "3" and self.state.cash >= 150_000_000:
+            self.state.cash -= 150_000_000
+            self.state.smart_city_built = True
+            self.state.employees += 50
+        elif cmd == "4":
+            p = input("1: 本社ビル(5000万) / 2: ジェット(3000万): ")
+            if p == "1" and self.state.cash >= 50_000_000:
+                self.state.cash -= 50_000_000
+                self.state.ceo_assets["hq_building"] = True
+            elif p == "2" and self.state.cash >= 30_000_000:
+                self.state.cash -= 30_000_000
+                self.state.ceo_assets["private_jet"] = True
+        elif cmd == "5" and self.state.cash >= 100_000_000:
+            self.state.cash -= 100_000_000
+            self.state.future_tech["space_program"] = True
+            self.state.world_gdp_share += 3.0
+from models import CompanyState
+from managers import GameManager
+
+
+def main():
+    state = CompanyState()
+    manager = GameManager(state)
+
+    print("==================================================")
+    print("  GLOBAL EMPEROR (分割モジュール版)")
+    print("==================================================")
+
+    while True:
+        print(
+            f"\n【{state.year}年 {state.month}月】 現金: {state.cash:,}円 | ブランド: {state.brand_value} | トレンド: {state.economic_trend}"
+        )
+        print("--------------------------------------------------")
+        print("1: 経営・人材・サプライチェーン管理")
+        print("2: 世界市場制覇・競合・ロビー活動")
+        print("3: 資金の活用 (プライベート・社会還元・メガプロジェクト)")
+        print("4: 翌月へ進む")
+        print("9: 終了")
+
+        cmd = input("入力: ")
+
+        if cmd == "1":
+            manager.menu_management()
+        elif cmd == "2":
+            manager.menu_global_strategy()
+        elif cmd == "3":
+            manager.menu_spending()
+        elif cmd == "4":
+            manager.trigger_random_events()
+            manager.update_monthly_finance()
+            manager.check_victory_conditions()
+
+            state.month += 1
+            if state.month > 12:
+                state.month = 1
+                state.year += 1
+        elif cmd == "9":
+            print("ゲームを終了します。")
+            break
+
+
+if __name__ == "__main__":
+    main()
