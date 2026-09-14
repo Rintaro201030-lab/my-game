@@ -2,285 +2,540 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>グローバル・メガコングロマリット経営</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>メガコングロマリット経営シミュレーター</title>
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #202124;
+            --sub-text: #5f6368;
+            --accent-green: #34a853;
+            --accent-red: #ea4335;
+            --accent-yellow: #fbbc04;
+            --accent-purple: #a142f4;
+            --border: #dadce0;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.4;
+            padding-bottom: 30px;
+        }
+
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
             padding: 10px;
-            background: #eef2f5;
-            color: #222;
-            font-size: 18px; /* 文字全体を拡大 */
-            line-height: 1.5;
         }
-        .container { max-width: 800px; margin: 0 auto; }
-        
-        /* ステータスバー */
-        .status-box {
-            background: #ffffff;
-            padding: 15px;
+
+        .app-header {
+            text-align: center;
+            padding: 8px 0;
+            background: linear-gradient(135deg, #1a73e8, #673ab7);
+            color: white;
             border-radius: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
+
+        .app-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .dashboard {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .event-banner {
+            background: #e8f0fe;
+            color: #1967d2;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 1.1em;
-            font-weight: bold;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
         }
-        .main-btn {
+
+        .stat-card {
+            background: #f1f3f4;
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--sub-text);
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .stat-value.money { color: var(--primary); font-size: 16px; }
+        .stat-value.profit { color: var(--accent-green); }
+
+        .btn-turn {
             width: 100%;
-            padding: 16px;
-            font-size: 1.2em;
-            font-weight: bold;
-            background: #28a745;
+            padding: 14px;
+            background: linear-gradient(135deg, #34a853, #1e8e3e);
             color: white;
             border: none;
             border-radius: 10px;
+            font-size: 17px;
+            font-weight: 800;
             margin-top: 10px;
+            box-shadow: 0 4px 8px rgba(52,168,83,0.3);
             cursor: pointer;
+            transition: opacity 0.2s;
         }
-        
-        /* タブ切り替えメニュー */
-        .tab-menu {
+
+        .btn-turn:active { opacity: 0.85; }
+
+        .nav-tabs {
             display: flex;
             gap: 6px;
             overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+            padding: 4px 0 8px 0;
+            margin-bottom: 10px;
+            -webkit-overflow-scrolling: touch;
         }
+
+        .nav-tabs::-webkit-scrollbar { display: none; }
+
         .tab-btn {
-            flex: 1;
-            min-width: 90px;
-            padding: 12px 8px;
-            font-size: 1.05em;
-            font-weight: bold;
-            background: #ddd;
-            border: none;
-            border-radius: 8px;
+            flex: 0 0 auto;
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--sub-text);
+            border-radius: 20px;
             cursor: pointer;
             white-space: nowrap;
         }
+
         .tab-btn.active {
-            background: #007bff;
+            background: var(--primary);
             color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 6px rgba(26,115,232,0.3);
         }
-        
-        /* ページコンテンツ */
-        .tab-content {
-            display: none;
+
+        .sub-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+            background: #e8eaed;
+            padding: 3px;
+            border-radius: 8px;
+        }
+
+        .sub-tab-btn {
+            flex: 1;
+            padding: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            background: transparent;
+            color: var(--sub-text);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .sub-tab-btn.active {
             background: white;
-            padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .tab-content.active {
+
+        .page-content {
+            display: none;
+        }
+
+        .page-content.active {
             display: block;
         }
 
-        /* 各種カード・リスト */
         .card {
-            border: 1px solid #e0e0e0;
-            padding: 14px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            background: #fafafa;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
-        .card h3 { margin: 0 0 8px 0; font-size: 1.25em; }
-        .card p { margin: 4px 0; }
-        
-        button.act-btn {
-            padding: 10px 16px;
-            font-size: 1em;
-            font-weight: bold;
+
+        .card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .card-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #e8f0fe;
+            color: var(--primary);
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: var(--sub-text);
+            margin-bottom: 8px;
+        }
+
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding: 6px 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            background: #007bff;
-            color: white;
-            margin-top: 6px;
+            transition: opacity 0.2s;
         }
-        .btn-danger { background: #dc3545; }
-        .btn-success { background: #28a745; }
-        .btn-warning { background: #ffc107; color: #222; }
-        .btn-purple { background: #6f42c1; }
-        .btn-global { background: #009688; }
-        
-        .log-box {
-            background: #1e1e1e;
-            color: #00ff00;
-            padding: 12px;
-            border-radius: 8px;
-            height: 120px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.9em;
-        }
-        .event-banner {
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
+
+        .btn:active { opacity: 0.8; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--accent-green); color: white; }
+        .btn-danger { background: var(--accent-red); color: white; }
+        .btn-warning { background: var(--accent-yellow); color: #202124; }
+        .btn-purple { background: var(--accent-purple); color: white; }
+        .btn:disabled { background: #dadce0; color: #80868b; cursor: not-allowed; }
+
+        .log-section {
+            background: #202124;
+            color: #34a853;
+            border-radius: 10px;
             padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .log-header {
+            color: #9aa0a6;
+            font-size: 11px;
+            margin-bottom: 4px;
             font-weight: bold;
-            font-size: 1.05em;
+        }
+
+        .log-box {
+            height: 90px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .badge-executive {
+            background: #fef7e0;
+            color: #b06000;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 id="company-title" style="text-align: center; margin: 10px 0;">🌐 グローバル経営シミュレーター</h2>
-    
-    <!-- 常時表示ステータス -->
-    <div class="status-box">
-        <div class="event-banner" id="event-status">【経済】通常 (1ドル=150円)</div>
+    <div class="app-header">
+        <h1 id="app-title">🌐 メガコングロマリット経営</h1>
+    </div>
+
+    <!-- 上部常時ダッシュボード -->
+    <div class="dashboard">
+        <div class="event-banner" id="event-display">【経済状況】通常 (1ドル=150円)</div>
         <div class="stats-grid">
-            <div>所持金:<br><span id="money" style="color: #007bff; font-size: 1.2em;">100,000,000</span> 円</div>
-            <div>年月:<br><span id="year">1</span>年目 <span id="month">1</span>月</div>
-            <div>自社株価:<br><span id="stock-price">1,000</span> 円</div>
-            <div>役員補正:<br>+<span id="exec-bonus">0</span>%</div>
+            <div class="stat-card">
+                <div class="stat-label">所持金</div>
+                <div class="stat-value money" id="money-display">100,000,000 円</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">年月</div>
+                <div class="stat-value" id="date-display">1年目 1月</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">先月純利益</div>
+                <div class="stat-value profit" id="profit-display">0 円</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">自社株価 / 役員補正</div>
+                <div class="stat-value"><span id="stock-display">1,000</span>円 (<span id="exec-bonus-display">+0%</span>)</div>
+            </div>
         </div>
-        <button class="main-btn" onclick="nextMonth()">1か月進める（経営実行）</button>
+        <button class="btn-turn" onclick="nextMonth()">▶ 1か月経営を進める</button>
     </div>
 
-    <!-- ページ切り替えタブ -->
-    <div class="tab-menu">
-        <button class="tab-btn active" onclick="switchTab('tab-biz')">🏢 国内事業</button>
-        <button class="tab-btn" onclick="switchTab('tab-global')">🌐 海外展開</button>
-        <button class="tab-btn" onclick="switchTab('tab-ma')">🤝 M&A・競合</button>
-        <button class="tab-btn" onclick="switchTab('tab-holdings')">🏛️ 持株会社</button>
-        <button class="tab-btn" onclick="switchTab('tab-hr')">👥 人事・役員</button>
-        <button class="tab-btn" onclick="switchTab('tab-ir')">💰 資本・R&D</button>
+    <!-- メインカテゴリナビゲーション（横スクロール） -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchPage('page-biz', this)">🏢 国内15事業</button>
+        <button class="tab-btn" onclick="switchPage('page-global', this)">🌐 海外拠点</button>
+        <button class="tab-btn" onclick="switchPage('page-ma', this)">🤝 M&A・競合</button>
+        <button class="tab-btn" onclick="switchPage('page-holdings', this)">🏛️ 持株会社</button>
+        <button class="tab-btn" onclick="switchPage('page-hr', this)">👥 人事・役員</button>
+        <button class="tab-btn" onclick="switchPage('page-ir', this)">💰 資本・R&D</button>
     </div>
 
-    <!-- 1. 国内事業ページ -->
-    <div id="tab-biz" class="tab-content active">
-        <h2>🏢 国内事業開発</h2>
-        <div class="card">
-            <h3>🍔 飲食チェーン</h3>
-            <p>所有数: <b id="count-food">0</b> 店舗</p>
-            <p>開設費用: 500,000 円</p>
-            <button class="act-btn" onclick="buyBusiness('food')">店舗を開設する</button>
+    <!-- ==================== 1. 国内15事業ページ ==================== -->
+    <div id="page-biz" class="page-content active">
+        <!-- 内部サブタブ -->
+        <div class="sub-tabs">
+            <button class="sub-tab-btn active" onclick="switchSubTab('sub-basic', this)">基本・実業(5)</button>
+            <button class="sub-tab-btn" onclick="switchSubTab('sub-tech', this)">IT・ハイテク(5)</button>
+            <button class="sub-tab-btn" onclick="switchSubTab('sub-special', this)">特殊・ハイエンド(5)</button>
         </div>
-        <div class="card">
-            <h3>🏢 不動産アセット</h3>
-            <p>所有数: <b id="count-realestate">0</b> ビル</p>
-            <p>購入費用: 5,000,000 円</p>
-            <button class="act-btn" onclick="buyBusiness('realestate')">不動産を購入する</button>
+
+        <!-- 基本・実業(5) -->
+        <div id="sub-basic" class="sub-page">
+            <div class="card">
+                <div class="card-title"><span>🍕 飲食チェーン</span> <span class="card-badge" id="count-food">0件</span></div>
+                <div class="card-desc">手軽に展開できる安定・定番事業。</div>
+                <div class="card-info"><span>価格: 50万円</span><span>基礎月収: 3万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('food')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>☕ スペシャリティカフェ</span> <span class="card-badge" id="count-cafe">0件</span></div>
+                <div class="card-desc">飲食の上位モデル。リピート率が高い。</div>
+                <div class="card-info"><span>価格: 100万円</span><span>基礎月収: 7万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('cafe')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>🏢 ビル不動産</span> <span class="card-badge" id="count-realestate">0件</span></div>
+                <div class="card-desc">景気に左右されにくい確実な家賃収入。</div>
+                <div class="card-info"><span>価格: 500万円</span><span>基礎月収: 30万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('realestate')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>📦 EC・物流センター</span> <span class="card-badge" id="count-logistics">0件</span></div>
+                <div class="card-desc">通販需要を支える重要アセット。</div>
+                <div class="card-info"><span>価格: 800万円</span><span>基礎月収: 55万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('logistics')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>🏥 総合クリニック</span> <span class="card-badge" id="count-clinic">0件</span></div>
+                <div class="card-desc">不景気にも強い医療ビジネス。</div>
+                <div class="card-info"><span>価格: 2,000万円</span><span>基礎月収: 130万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('clinic')">事業を購入</button>
+            </div>
         </div>
-        <div class="card">
-            <h3>🚀 ITスタートアップ</h3>
-            <p>所有数: <b id="count-it">0</b> 社</p>
-            <p>設立費用: 2,000,000 円</p>
-            <button class="act-btn" onclick="buyBusiness('it')">会社を設立する</button>
+
+        <!-- IT・ハイテク(5) -->
+        <div id="sub-tech" class="sub-page" style="display:none;">
+            <div class="card">
+                <div class="card-title"><span>💻 ITスタートアップ</span> <span class="card-badge" id="count-it">0件</span></div>
+                <div class="card-desc">ITブームで爆発的な利益を生む成長力。</div>
+                <div class="card-info"><span>価格: 200万円</span><span>基礎月収: 15万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('it')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>🎮 ゲーム開発スタジオ</span> <span class="card-badge" id="count-game">0件</span></div>
+                <div class="card-desc">ヒット作が出れば一攫千金の高リターン。</div>
+                <div class="card-info"><span>価格: 1,000万円</span><span>基礎月収: 75万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('game')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>🔬 量子計算研究所</span> <span class="card-badge" id="count-quantum">0件</span></div>
+                <div class="card-desc">【シナジー】自社の全IT/AI/宇宙事業の収益+15%</div>
+                <div class="card-info"><span>価格: 3,000万円</span><span>基礎月収: 60万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('quantum')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>🤖 AI・ロボティクス</span> <span class="card-badge" id="count-ai">0件</span></div>
+                <div class="card-desc">先進技術。量子研究所との相乗効果が極大。</div>
+                <div class="card-info"><span>価格: 5,000万円</span><span>基礎月収: 320万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('ai')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>⚙️ 完全自動化工場</span> <span class="card-badge" id="count-robot">0件</span></div>
+                <div class="card-desc">【全社ブースト】全事業の最終純利益を+10%底上げ。</div>
+                <div class="card-info"><span>価格: 6,000万円</span><span>基礎月収: 250万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('robot')">事業を購入</button>
+            </div>
         </div>
-        <div class="card">
-            <h3>🎮 ゲーム開発スタジオ</h3>
-            <p>所有数: <b id="count-game">0</b> スタジオ</p>
-            <p>設立費用: 10,000,000 円</p>
-            <button class="act-btn" onclick="buyBusiness('game')">スタジオを設立する</button>
-        </div>
-        <div class="card">
-            <h3>⚡ クリーンエネルギー</h3>
-            <p>所有数: <b id="count-energy">0</b> 発電所</p>
-            <p>建設費用: 30,000,000 円</p>
-            <button class="act-btn" onclick="buyBusiness('energy')">発電所を建設する</button>
+
+        <!-- 特殊・ハイエンド(5) -->
+        <div id="sub-special" class="sub-page" style="display:none;">
+            <div class="card">
+                <div class="card-title"><span>🌿 CBDヘルスケア農園</span> <span class="card-badge" id="count-cbd">0件</span></div>
+                <div class="card-desc">【防御型】不景気やショックでも収益が低下しない。</div>
+                <div class="card-info"><span>価格: 800万円</span><span>基礎月収: 50万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('cbd')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>🎰 カジノリゾート</span> <span class="card-badge" id="count-casino">0件</span></div>
+                <div class="card-desc">【ハイリスク】景気に極端に左右される波のある事業。</div>
+                <div class="card-info"><span>価格: 1,500万円</span><span>基礎月収: 120万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('casino')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>⚡ クリーンエネルギー</span> <span class="card-badge" id="count-energy">0件</span></div>
+                <div class="card-desc">社会インフラ。安定した大口収益。</div>
+                <div class="card-info"><span>価格: 3,000万円</span><span>基礎月収: 180万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('energy')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>🎬 映画・動画スタジオ</span> <span class="card-badge" id="count-movie">0件</span></div>
+                <div class="card-desc">世界市場を狙う巨大エンターテインメント。</div>
+                <div class="card-info"><span>価格: 8,000万円</span><span>基礎月収: 480万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('movie')">事業を購入</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><span>🚀 宇宙開発プロジェクト</span> <span class="card-badge" id="count-space">0件</span></div>
+                <div class="card-desc">【最高峰】超高額だが桁違いの収益を生む夢の事業。</div>
+                <div class="card-info"><span>価格: 2億円</span><span>基礎月収: 1,500万円</span></div>
+                <button class="btn btn-primary" onclick="buyAsset('space')">事業を購入</button>
+            </div>
         </div>
     </div>
 
-    <!-- 2. 海外展開ページ -->
-    <div id="tab-global" class="tab-content">
-        <h2>🌐 世界進出・海外拠点マネジメント</h2>
-        <div id="global-container"></div>
+    <!-- ==================== 2. 海外拠点ページ ==================== -->
+    <div id="page-global" class="page-content">
+        <div class="card">
+            <div class="card-title">🌐 海外進出拠点マネジメント</div>
+            <div class="card-desc">拠点を開設すると全事業へのグローバル乗数と為替（ドル高）恩恵が拡大します。</div>
+        </div>
+        <div id="global-list"></div>
     </div>
 
-    <!-- 3. M&A・競合ページ -->
-    <div id="tab-ma" class="tab-content">
-        <h2>🤝 M&A（買収）& ⚔️ 競合モニタリング</h2>
-        <h3>⚔️ 競合他社の動向</h3>
-        <div id="rival-container"></div>
-        <hr style="margin: 20px 0;">
-        <h3>🤝 企業買収（M&A）</h3>
+    <!-- ==================== 3. M&A・競合ページ ==================== -->
+    <div id="page-ma" class="page-content">
         <div class="card">
-            <h3>🍔 中堅ファーストフードチェーン</h3>
-            <p>効果: 飲食店舗 +5 | 費用: 2,000,000 円</p>
-            <button class="act-btn btn-danger" onclick="maAcquire('food', 2000000, 5)">買収を実行する</button>
+            <div class="card-title">⚔️ 競合他社モニタリング</div>
+            <div class="card-desc">競合が市場シェアを奪うと全社利益が低下します。買収して排除しましょう。</div>
+            <div id="rival-list"></div>
+        </div>
+
+        <div class="card" style="margin-top: 15px;">
+            <div class="card-title">🤝 企業買収（M&A）</div>
+            <div class="card-desc">パッケージ化された企業を丸ごと一括買収します。</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">🍔 中堅飲食ファーストフード</div>
+            <div class="card-info"><span>効果: 飲食チェーン +5店舗</span></div>
+            <button class="btn btn-danger" onclick="maAcquire('food', 2000000, 5)">2,000,000 円で買収</button>
         </div>
         <div class="card">
-            <h3>🏢 中堅デベロッパー企業</h3>
-            <p>効果: 不動産 +3 | 費用: 12,000,000 円</p>
-            <button class="act-btn btn-danger" onclick="maAcquire('realestate', 12000000, 3)">買収を実行する</button>
+            <div class="card-title">🏢 地方都市デベロッパー</div>
+            <div class="card-info"><span>効果: ビル不動産 +3棟</span></div>
+            <button class="btn btn-danger" onclick="maAcquire('realestate', 12000000, 3)">12,000,000 円で買収</button>
         </div>
         <div class="card">
-            <h3>🚀 ITソリューションズ社</h3>
-            <p>効果: IT社 +4 | 費用: 7,000,000 円</p>
-            <button class="act-btn btn-danger" onclick="maAcquire('it', 7000000, 4)">買収を実行する</button>
-        </div>
-        <div class="card">
-            <h3>🌐 米国大型テック・ファンド</h3>
-            <p>効果: IT+10 / ゲーム+5 | 費用: 150,000,000 円</p>
-            <button class="act-btn btn-global" onclick="maGlobalTech()">大型M&Aを実行する</button>
+            <div class="card-title">🌐 米国大手テック・ファンド</div>
+            <div class="card-info"><span>効果: IT +10社 / ゲーム +5社</span></div>
+            <button class="btn btn-purple" onclick="maGlobalTech()">150,000,000 円で巨額M&A</button>
         </div>
     </div>
 
-    <!-- 4. 持株会社ページ -->
-    <div id="tab-holdings" class="tab-content">
-        <h2>🏛️ 持株会社（親会社・ホールディングス）</h2>
-        <div id="holding-container"></div>
+    <!-- ==================== 4. 持株会社ページ ==================== -->
+    <div id="page-holdings" class="page-content">
+        <div id="holdings-container"></div>
     </div>
 
-    <!-- 5. 人事・役員ページ -->
-    <div id="tab-hr" class="tab-content">
-        <h2>👥 人事・役員マネジメント</h2>
-        <p>役員を配置すると全事業の収益倍率がアップします。</p>
-        <button class="act-btn btn-purple" style="width:100%; margin-bottom: 15px;" onclick="hireEmployee()">スカウト採用を行う (3,000,000 円)</button>
+    <!-- ==================== 5. 人事・役員ページ ==================== -->
+    <div id="page-hr" class="page-content">
+        <div class="card">
+            <div class="card-title">👥 人事・役員マネジメント</div>
+            <div class="card-desc">優秀な人員をスカウトし、役員に昇進させると能力値に応じて全社収益にボーナスがつきます。</div>
+            <button class="btn btn-purple" onclick="hireEmployee()">3,000,000円でスカウト採用</button>
+        </div>
         <div id="employee-list"></div>
     </div>
 
-    <!-- 6. 資本・R&Dページ -->
-    <div id="tab-ir" class="tab-content">
-        <h2>💰 資本政策 & 🧪 研究開発（R&D）</h2>
+    <!-- ==================== 6. 資本・R&Dページ ==================== -->
+    <div id="page-ir" class="page-content">
         <div class="card">
-            <h3>🧪 研究開発（R&D）</h3>
-            <p>現在の技術レベル: <b>Lv.<span id="tech-level">1</span></b></p>
-            <p>研究費: <span id="tech-cost">2,000,000</span> 円</p>
-            <button class="act-btn" onclick="upgradeTech()">技術投資を行う</button>
+            <div class="card-title">🧪 研究開発（R&D）</div>
+            <div class="card-desc">技術レベルを上げるほど、全技術系事業のベース収益が向上します。</div>
+            <div class="card-info"><span>現在のレベル: Lv.<b id="tech-level">1</b></span><span>費用: <b id="tech-cost">2,000,000</b>円</span></div>
+            <button class="btn btn-success" onclick="upgradeTech()">技術投資を実行</button>
         </div>
+
         <div class="card">
-            <h3>📈 資本政策（株式）</h3>
-            <button class="act-btn" onclick="issueShares()">増資（+500株発行）</button><br>
-            <button class="act-btn btn-warning" onclick="buybackShares()">自社株買い（株価上昇）</button><br>
-            <button class="act-btn btn-purple" onclick="payDividends()">株主配当を実施する</button>
+            <div class="card-title">📈 資本政策（株式マネジメント）</div>
+            <div class="card-desc">株式の発行・自社株買い・配当により株価と資金をコントロールします。</div>
+            <div style="display: flex; gap: 6px; flex-direction: column;">
+                <button class="btn btn-primary" onclick="issueShares()">増資（新株発行で資金調達）</button>
+                <button class="btn btn-warning" onclick="buybackShares()">自社株買い（株価上昇）</button>
+                <button class="btn btn-purple" onclick="payDividends()">株主配当を実施（投資家評価UP）</button>
+            </div>
         </div>
+
         <div class="card">
-            <h3>🔔 子会社株式公開（IPO）</h3>
-            <p>IT事業数: <span id="ipo-req-it">0</span> / 5 社が必要</p>
-            <button class="act-btn btn-success" id="btn-ipo" onclick="ipoSubsidiary()">IT子会社をIPO公開する</button>
+            <div class="card-title">🔔 子会社株式公開（IPO）</div>
+            <div class="card-desc">IT事業が5社以上ある場合、子会社として独立上場させて莫大な資金を獲得できます。</div>
+            <div class="card-info"><span>IT事業数: <span id="ipo-req-it">0</span> / 5社</span></div>
+            <button class="btn btn-success" id="btn-ipo" onclick="ipoSubsidiary()">IT子会社をIPO公開</button>
         </div>
     </div>
 
-    <!-- ログエリア -->
-    <div class="status-box">
-        <h3>📋 経営アナウンス</h3>
-        <div class="log-box" id="log">ゲーム開始。タブを切り替えて各事業を拡大させましょう！</div>
+    <!-- 下部ログボックス -->
+    <div class="log-section">
+        <div class="log-header">📋 経営インフォメーションアナウンス</div>
+        <div class="log-box" id="log-box">
+            > メガコングロマリット経営シミュレーターがスタートしました。<br>
+            > 各タブを切り替えて国内15事業、海外進出、M&Aを展開しましょう。
+        </div>
     </div>
 </div>
 
 <script>
     let money = 100000000;
-    let year = 1;
-    let month = 1;
+    let monthCount = 1;
     let shares = 1000;
     let stockPrice = 1000;
     let techLevel = 1;
     let techCost = 2000000;
     let ipoCount = 0;
+    let lastProfit = 0;
 
     let isHoldingsFormed = false;
     let holdingName = "";
@@ -288,63 +543,104 @@
     let rivals = [];
 
     let globalBases = {
-        asia: { name: "アジア太平洋（シンガポール/上海）", cost: 100000000, active: false, profitBonus: 0.3, desc: "新興国の成長で収益大幅拡大" },
-        northAmerica: { name: "北米（シリコンバレー/NY）", cost: 300000000, active: false, profitBonus: 0.6, desc: "IT・ゲーム事業収益が激増" },
-        europe: { name: "欧州（ロンドン/フランクフルト）", cost: 500000000, active: false, profitBonus: 0.8, desc: "不動産・エネルギーが爆発的収益化" }
+        asia: { name: "アジア太平洋（シンガポール/上海）", cost: 100000000, active: false, bonus: 0.3, desc: "新興国成長で全体の収益底上げ" },
+        northAmerica: { name: "北米（シリコンバレー/NY）", cost: 300000000, active: false, bonus: 0.6, desc: "IT・エンタメ収益が超拡大" },
+        europe: { name: "欧州（ロンドン/フランクフルト）", cost: 500000000, active: false, bonus: 0.8, desc: "不動産・エネルギー・高級品が爆発的収益化" }
     };
 
-    let exchangeRate = 150;
+    let currentEventKey = 'NORMAL';
+    const events = {
+        NORMAL: { name: '通常世界経済', desc: '安定 (1ドル=150円)', rate: 150, mod: 1.0, casinoMod: 1.0 },
+        YEN_WEAK: { name: '円安ドル高バブル', desc: '海外拠点収益拡大 (1ドル=175円)', rate: 175, mod: 1.3, casinoMod: 1.5 },
+        YEN_STRONG: { name: '円高ショック', desc: '海外収益減少 (1ドル=120円)', rate: 120, mod: 0.8, casinoMod: 0.5 },
+        TECH_BOOM: { name: 'グローバルテックブーム', desc: 'IT/AI/ゲーム爆発成長', rate: 155, mod: 2.0, casinoMod: 1.2 },
+        RECESSION: { name: '世界景気減速', desc: '全体収益落ち込み', rate: 145, mod: 0.6, casinoMod: 0.2 }
+    };
+
+    const assets = {
+        food: { count: 0, cost: 500000, profit: 30000, type: 'basic' },
+        cafe: { count: 0, cost: 1000000, profit: 70000, type: 'basic' },
+        realestate: { count: 0, cost: 5000000, profit: 300000, type: 'basic' },
+        logistics: { count: 0, cost: 8000000, profit: 550000, type: 'basic' },
+        clinic: { count: 0, cost: 20000000, profit: 1300000, type: 'basic' },
+        it: { count: 0, cost: 2000000, profit: 150000, type: 'tech' },
+        game: { count: 0, cost: 10000000, profit: 750000, type: 'tech' },
+        quantum: { count: 0, cost: 30000000, profit: 600000, type: 'tech' },
+        ai: { count: 0, cost: 50000000, profit: 3200000, type: 'tech' },
+        robot: { count: 0, cost: 60000000, profit: 2500000, type: 'tech' },
+        cbd: { count: 0, cost: 8000000, profit: 500000, type: 'special' },
+        casino: { count: 0, cost: 15000000, profit: 1200000, type: 'special' },
+        energy: { count: 0, cost: 30000000, profit: 1800000, type: 'special' },
+        movie: { count: 0, cost: 80000000, profit: 4800000, type: 'special' },
+        space: { count: 0, cost: 200000000, profit: 15000000, type: 'special' }
+    };
+
     let employees = [
         { id: 1, name: "佐藤 健太", skill: 85, isExecutive: true },
-        { id: 2, name: "鈴木 美咲", skill: 42, isExecutive: false },
-        { id: 3, name: "高橋 誠", skill: 68, isExecutive: false }
+        { id: 2, name: "鈴木 美咲", skill: 50, isExecutive: false },
+        { id: 3, name: "高橋 誠", skill: 70, isExecutive: false }
     ];
     let nextEmpId = 4;
 
-    const namesList = ["John", "Alex", "田中", "渡辺", "Michael", "Sarah", "加藤", "吉田", "David", "Emma"];
-    const firstNamesList = ["Smith", "Johnson", "翔太", "蓮", "Brown", "Miller", "大翔", "Davis", "Wilson", "芽依"];
+    function switchPage(pageId, btnEl) {
+        document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-tabs .tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        btnEl.classList.add('active');
+    }
 
-    let currentEvent = 'NORMAL';
-    const events = {
-        NORMAL: { name: '通常世界経済', desc: '安定 (1ドル=150円)', rate: 150, food:1.0, re:1.0, it:1.0, game:1.0, energy:1.0 },
-        YEN_WEAK: { name: '円安ドル高バブル', desc: '海外収益大幅増 (1ドル=175円)', rate: 175, food:0.9, re:1.1, it:1.5, game:1.8, energy:1.2 },
-        YEN_STRONG: { name: '円高ショック', desc: '海外収益減目 (1ドル=120円)', rate: 120, food:1.1, re:0.9, it:0.8, game:0.9, energy:0.9 },
-        GLOBAL_TECH_BOOM: { name: 'グローバルテックブーム', desc: 'IT・ゲーム爆発成長', rate: 155, food:1.0, re:1.0, it:3.0, game:3.5, energy:1.0 }
-    };
+    function switchSubTab(subId, btnEl) {
+        document.querySelectorAll('.sub-page').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.sub-tabs .sub-tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(subId).style.display = 'block';
+        btnEl.classList.add('active');
+    }
 
-    const businesses = {
-        food: { count: 0, cost: 500000 },
-        realestate: { count: 0, cost: 5000000 },
-        it: { count: 0, cost: 2000000 },
-        game: { count: 0, cost: 10000000 },
-        energy: { count: 0, cost: 30000000 }
-    };
+    function buyAsset(key) {
+        let item = assets[key];
+        if (money >= item.cost) {
+            money -= item.cost;
+            item.count++;
+            log(`【購入】${getAssetName(key)} を1件追加導入しました。`);
+            checkRivalSpawn();
+            updateUI();
+        } else {
+            alert("資金が足りません。");
+        }
+    }
 
-    // タブ切り替え処理
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+    function getAssetName(key) {
+        const names = {
+            food: "飲食チェーン", cafe: "スペシャリティカフェ", realestate: "ビル不動産", logistics: "EC物流センター", clinic: "総合クリニック",
+            it: "ITスタートアップ", game: "ゲーム開発スタジオ", quantum: "量子計算研究所", ai: "AIロボティクス", robot: "完全自動化工場",
+            cbd: "CBDヘルスケア農園", casino: "カジノリゾート", energy: "クリーンエネルギー", movie: "映画動画スタジオ", space: "宇宙開発プロジェクト"
+        };
+        return names[key] || key;
     }
 
     function getTotalBusinessCount() {
-        return Object.values(businesses).reduce((sum, b) => sum + b.count, 0);
+        return Object.values(assets).reduce((sum, a) => sum + a.count, 0);
     }
 
     function calculateExecutiveBonus() {
-        let totalSkill = 0;
-        employees.forEach(emp => { if (emp.isExecutive) totalSkill += emp.skill; });
-        return Math.floor(totalSkill * 0.5);
+        let skillSum = 0;
+        employees.forEach(e => { if (e.isExecutive) skillSum += e.skill; });
+        return Math.floor(skillSum * 0.4);
     }
 
     function calculateGlobalMultiplier() {
+        let rate = events[currentEventKey].rate;
         let bonus = 1.0;
-        if (globalBases.asia.active) bonus += globalBases.asia.profitBonus;
-        if (globalBases.northAmerica.active) bonus += globalBases.northAmerica.profitBonus;
-        if (globalBases.europe.active) bonus += globalBases.europe.profitBonus;
-        return bonus * (exchangeRate / 150);
+        if (globalBases.asia.active) bonus += globalBases.asia.bonus;
+        if (globalBases.northAmerica.active) bonus += globalBases.northAmerica.bonus;
+        if (globalBases.europe.active) bonus += globalBases.europe.bonus;
+        return bonus * (rate / 150);
+    }
+
+    function calculateRivalPenalty() {
+        let totalImpact = 0;
+        rivals.forEach(r => totalImpact += r.marketShare);
+        return Math.min(totalImpact, 70);
     }
 
     function calculateGroupSynergy() {
@@ -352,20 +648,99 @@
         return Math.min(subsidiaries.length * 5, 50);
     }
 
-    function calculateRivalPenalty() {
-        let totalImpact = 0;
-        rivals.forEach(rival => { totalImpact += rival.marketShare; });
-        return Math.min(totalImpact, 75);
+    function nextMonth() {
+        monthCount++;
+        
+        if (Math.random() < 0.18) {
+            const keys = Object.keys(events);
+            currentEventKey = keys[Math.floor(Math.random() * keys.length)];
+            log(`【経済変動】「${events[currentEventKey].name}」が発生しました。`);
+        }
+
+        let ev = events[currentEventKey];
+        let techMult = 1 + (techLevel - 1) * 0.2;
+        let execMult = 1 + (calculateExecutiveBonus() / 100);
+        let synMult = 1 + (calculateGroupSynergy() / 100);
+        let globMult = calculateGlobalMultiplier();
+        let rivPen = 1 - (calculateRivalPenalty() / 100);
+
+        let quantumBonus = 1.0 + (assets.quantum.count * 0.15);
+        let robotEfficiency = 1.0 + (assets.robot.count * 0.10);
+
+        let grossProfit = 0;
+
+        grossProfit += assets.food.count * assets.food.profit * ev.mod;
+        grossProfit += assets.cafe.count * assets.cafe.profit * ev.mod;
+        grossProfit += assets.realestate.count * assets.realestate.profit;
+        grossProfit += assets.logistics.count * assets.logistics.profit * ev.mod;
+        grossProfit += assets.clinic.count * assets.clinic.profit;
+
+        grossProfit += assets.it.count * assets.it.profit * ev.mod * quantumBonus;
+        grossProfit += assets.game.count * assets.game.profit * ev.mod;
+        grossProfit += assets.quantum.count * assets.quantum.profit;
+        grossProfit += assets.ai.count * assets.ai.profit * ev.mod * quantumBonus;
+        grossProfit += assets.robot.count * assets.robot.profit;
+
+        grossProfit += assets.cbd.count * assets.cbd.profit;
+        grossProfit += assets.casino.count * assets.casino.profit * ev.casinoMod;
+        grossProfit += assets.energy.count * assets.energy.profit;
+        grossProfit += assets.movie.count * assets.movie.profit * ev.mod;
+        grossProfit += assets.space.count * assets.space.profit * quantumBonus;
+
+        grossProfit = grossProfit * techMult * execMult * synMult * globMult * rivPen * robotEfficiency;
+
+        let subDiv = 0;
+        subsidiaries.forEach(s => subDiv += s.monthlyDividend);
+
+        let salaries = 0;
+        employees.forEach(e => salaries += e.isExecutive ? 2000000 : 500000);
+
+        let netIncome = Math.floor(grossProfit + subDiv - salaries);
+        money += netIncome;
+        lastProfit = netIncome;
+
+        log(`${monthCount}月度決算: 純利益 +${netIncome.toLocaleString()}円 (人件費: -${salaries.toLocaleString()}円)`);
+
+        checkRivalSpawn();
+        updateUI();
+
+        if (money < 0) {
+            alert("資金がマイナスになり破産しました。ゲームオーバーです。");
+            location.reload();
+        }
     }
 
-    function expandGlobal(regionKey) {
-        let region = globalBases[regionKey];
-        if (region.active) return;
-        if (money < region.cost) { alert("費用が足りません"); return; }
-        money -= region.cost;
-        region.active = true;
-        stockPrice = Math.floor(stockPrice * 1.6);
-        addLog(`【🌐 海外進出】「${region.name}」拠点を開設しました！`);
+    function checkRivalSpawn() {
+        let totalBiz = getTotalBusinessCount();
+        if (totalBiz >= 12 && rivals.length === 0) {
+            rivals.push({ id: 1, name: "ゼニス・メガコーポ", marketShare: 15, buyoutCost: 60000000 });
+            log(`【⚠️ 競合出現】ライバル「ゼニス社」が市場参入！全社収益-15%`);
+        }
+        if ((totalBiz >= 30 || globalBases.northAmerica.active) && rivals.length === 1) {
+            rivals.push({ id: 2, name: "グローバル・オメガファンド", marketShare: 30, buyoutCost: 400000000 });
+            log(`【🔥 超巨大競合】米国「オメガ社」が世界参入！追加シェア喪失-30%`);
+        }
+    }
+
+    function buyoutRival(rivalId) {
+        let r = rivals.find(item => item.id === rivalId);
+        if (!r || money < r.buyoutCost) { alert("買収費用が足りません。"); return; }
+        money -= r.buyoutCost;
+        log(`【🎉 M&A買収成功】「${r.name}」を完全に傘下納めしました！`);
+        if (isHoldingsFormed) {
+            subsidiaries.push({ name: `${r.name} (統合版)`, type: "買収子会社", monthlyDividend: 6000000 });
+        }
+        rivals = rivals.filter(item => item.id !== rivalId);
+        stockPrice = Math.floor(stockPrice * 1.35);
+        updateUI();
+    }
+
+    function maAcquire(type, cost, addCount) {
+        if (money < cost) { alert("費用が足りません"); return; }
+        money -= cost;
+        assets[type].count += addCount;
+        log(`【M&A実行】${getAssetName(type)}を ${addCount}件 一括買収しました。`);
+        checkRivalSpawn();
         updateUI();
     }
 
@@ -373,145 +748,58 @@
         let cost = 150000000;
         if (money < cost) { alert("費用が足りません"); return; }
         money -= cost;
-        businesses.it.count += 10;
-        businesses.game.count += 5;
-        stockPrice = Math.floor(stockPrice * 1.35);
-        addLog(`【🌍 大型M&A】米国テック・ファンドを買収統合しました！`);
+        assets.it.count += 10;
+        assets.game.count += 5;
+        stockPrice = Math.floor(stockPrice * 1.4);
+        log(`【🌍 巨額M&A】米国テックファンドの全アセットを取得完了！`);
         checkRivalSpawn();
         updateUI();
     }
 
-    function checkRivalSpawn() {
-        let totalBiz = getTotalBusinessCount();
-        if (totalBiz >= 10 && rivals.length === 0) {
-            rivals.push({ id: 1, name: "ゼニス・コーポレーション", marketShare: 15, buyoutCost: 60000000 });
-            addLog(`【⚠️ 競合出現】ライバル「ゼニス社」が参入しました！`);
-        }
-        if ((totalBiz >= 30 || globalBases.northAmerica.active) && rivals.length === 1) {
-            rivals.push({ id: 2, name: "グローバル・オメガ社", marketShare: 30, buyoutCost: 500000000 });
-            addLog(`【🔥 世界競合】米国超巨大資本「オメガ社」が世界市場へ参入！`);
-        }
-    }
-
-    function buyoutRival(rivalId) {
-        let rival = rivals.find(r => r.id === rivalId);
-        if (!rival || money < rival.buyoutCost) { alert("費用が足りません"); return; }
-        money -= rival.buyoutCost;
-        addLog(`【🎉 M&A成功】「${rival.name}」を買収統合しました！`);
-        if (isHoldingsFormed) {
-            subsidiaries.push({ name: `${rival.name} (買収済)`, type: "海外子会社", monthlyDividend: 5000000 });
-        }
-        rivals = rivals.filter(r => r.id !== rivalId);
-        stockPrice = Math.floor(stockPrice * 1.4);
+    function expandGlobal(key) {
+        let base = globalBases[key];
+        if (base.active) return;
+        if (money < base.cost) { alert("進出資金が足りません"); return; }
+        money -= base.cost;
+        base.active = true;
+        stockPrice = Math.floor(stockPrice * 1.5);
+        log(`【🌐 海外進出】拠点「${base.name}」を開設完了！`);
         updateUI();
     }
 
     function formHoldings() {
-        if (money < 50000000) { alert("費用が足りません"); return; }
-        let inputName = prompt("持株会社（親会社）の名前を入力してください:", "世界帝国ホールディングス");
-        if (!inputName) return;
+        if (money < 50000000) { alert("費用が足りません(5,000万円必要)"); return; }
+        let input = prompt("親会社（持株会社）の社名を入力してください:", "帝国ホールディングス");
+        if (!input) return;
         money -= 50000000;
         isHoldingsFormed = true;
-        holdingName = inputName;
+        holdingName = input;
         subsidiaries.push({ name: "グローバル・フード社", type: "飲食事業", monthlyDividend: 1000000 });
         subsidiaries.push({ name: "フロンティア・テック社", type: "IT事業", monthlyDividend: 2000000 });
         stockPrice = Math.floor(stockPrice * 1.5);
-        addLog(`【🏢 持株会社設立】「${holdingName}」を発足しました！`);
+        log(`【🏛️ 持株会社発足】「${holdingName}」を設立しました。`);
         updateUI();
     }
 
     function createNewSubsidiary() {
-        if (money < 30000000) { alert("費用が足りません"); return; }
-        let subName = prompt("新設子会社の社名を入力:", "イノベーション株式会社");
+        if (money < 30000000) { alert("設立費用が足りません(3,000万円必要)"); return; }
+        let subName = prompt("新設子会社の社名を入力:", "イノベーションラボ");
         if (!subName) return;
         money -= 30000000;
         subsidiaries.push({ name: subName, type: "新規事業", monthlyDividend: 1500000 });
-        addLog(`【🏢 子会社設立】新会社「${subName}」を発足！`);
+        log(`【🏢 子会社設立】「${subName}」を発足！`);
         updateUI();
     }
 
-    function updateUI() {
-        document.getElementById('money').innerText = money.toLocaleString();
-        document.getElementById('year').innerText = year;
-        document.getElementById('month').innerText = month;
-        document.getElementById('stock-price').innerText = Math.floor(stockPrice).toLocaleString();
-
-        document.getElementById('count-food').innerText = businesses.food.count;
-        document.getElementById('count-realestate').innerText = businesses.realestate.count;
-        document.getElementById('count-it').innerText = businesses.it.count;
-        document.getElementById('count-game').innerText = businesses.game.count;
-        document.getElementById('count-energy').innerText = businesses.energy.count;
-
-        document.getElementById('tech-level').innerText = techLevel;
-        document.getElementById('tech-cost').innerText = techCost.toLocaleString();
-        document.getElementById('ipo-req-it').innerText = businesses.it.count;
-        document.getElementById('btn-ipo').disabled = businesses.it.count < 5;
-
-        document.getElementById('exec-bonus').innerText = calculateExecutiveBonus();
-
-        const ev = events[currentEvent];
-        document.getElementById('event-status').innerText = `【経済】${ev.name} (${ev.desc})`;
-
-        renderGlobalSection();
-        renderRivalSection();
-        renderHoldingsSection();
-        renderEmployees();
-    }
-
-    function renderGlobalSection() {
-        const container = document.getElementById('global-container');
-        let html = '';
-        Object.keys(globalBases).forEach(key => {
-            let base = globalBases[key];
-            if (base.active) {
-                html += `<div class="card" style="background:#e0f2f1;"><h3>✅ 【開設済】${base.name}</h3><p>${base.desc}</p></div>`;
-            } else {
-                html += `<div class="card"><h3>🌐 ${base.name}</h3><p>${base.desc}</p><p>開設費用: <b>${base.cost.toLocaleString()} 円</b></p><button class="act-btn btn-global" onclick="expandGlobal('${key}')">拠点を開設する</button></div>`;
-            }
-        });
-        container.innerHTML = html;
-    }
-
-    function renderRivalSection() {
-        const container = document.getElementById('rival-container');
-        if (rivals.length === 0) {
-            container.innerHTML = `<p style="color:#666;">現在、ライバル企業は参入していません。</p>`;
-        } else {
-            let html = '';
-            rivals.forEach(r => {
-                html += `<div class="card" style="background:#f8d7da;"><h3>⚔️ 競合: ${r.name}</h3><p>奪われているシェア: <b>-${r.marketShare}%</b></p><button class="act-btn btn-danger" onclick="buyoutRival(${r.id})">敵対的M&Aで買収 (${r.buyoutCost.toLocaleString()}円)</button></div>`;
-            });
-            container.innerHTML = html;
-        }
-    }
-
-    function renderHoldingsSection() {
-        const container = document.getElementById('holding-container');
-        if (!isHoldingsFormed) {
-            container.innerHTML = `<p>持株会社を設立してシナジーを発揮させます。</p><button class="act-btn" onclick="formHoldings()">持株会社を設立する (50,000,000 円)</button>`;
-        } else {
-            document.getElementById('company-title').innerText = `🌐 ${holdingName}`;
-            let subListHtml = subsidiaries.map(sub => `<li><b>${sub.name}</b> (+${sub.monthlyDividend.toLocaleString()}円/月)</li>`).join('');
-            container.innerHTML = `<div class="card" style="background:#e2d9f3;"><h3>👑 親会社: ${holdingName}</h3><p>グループシナジー: <b>+${calculateGroupSynergy()}%</b></p><button class="act-btn btn-purple" onclick="createNewSubsidiary()">新規子会社を設立 (30,000,000円)</button><h4 style="margin-top:10px;">【傘下子会社】</h4><ul>${subListHtml}</ul></div>`;
-        }
-    }
-
-    function renderEmployees() {
-        const container = document.getElementById('employee-list');
-        let html = '';
-        employees.forEach(emp => {
-            html += `<div class="card"><h3>${emp.isExecutive ? '👔 役員' : '👤 社員'}: ${emp.name}</h3><p>能力値: <b>${emp.skill}</b> / 100</p><p>給料: ${(emp.isExecutive ? 2000000 : 500000).toLocaleString()} 円/月</p>${emp.isExecutive ? `<button class="act-btn btn-warning" onclick="toggleExecutive(${emp.id})">役員解任</button>` : `<button class="act-btn btn-success" onclick="toggleExecutive(${emp.id})">役員昇進</button>`} <button class="act-btn btn-danger" onclick="fireEmployee(${emp.id})">解雇</button></div>`;
-        });
-        container.innerHTML = html;
-    }
-
     function hireEmployee() {
-        if (money < 3000000) { alert("費用が足りません"); return; }
+        if (money < 3000000) { alert("スカウト費用が足りません"); return; }
         money -= 3000000;
-        let rName = namesList[Math.floor(Math.random()*namesList.length)] + " " + firstNamesList[Math.floor(Math.random()*firstNamesList.length)];
-        let rSkill = Math.floor(Math.random()*70) + 30;
+        const fn = ["佐藤", "鈴木", "高橋", "田中", "渡辺", "伊藤", "山本", "中村"];
+        const ln = ["健太", "美咲", "誠", "陽子", "拓也", "葵", "翔太", "蓮"];
+        let rName = fn[Math.floor(Math.random()*fn.length)] + " " + ln[Math.floor(Math.random()*ln.length)];
+        let rSkill = Math.floor(Math.random()*65) + 35;
         employees.push({ id: nextEmpId++, name: rName, skill: rSkill, isExecutive: false });
-        addLog(`【人事】${rName}（能力: ${rSkill}）をスカウトしました！`);
+        log(`【人事】${rName} (能力値:${rSkill}) をスカウト採用しました。`);
         updateUI();
     }
 
@@ -528,36 +816,23 @@
         }
     }
 
-    function ipoSubsidiary() {
-        if (businesses.it.count >= 5) {
-            businesses.it.count -= 3;
-            let ipoProfit = 30000000 + (ipoCount * 20000000);
-            money += ipoProfit;
-            ipoCount++;
-            if (isHoldingsFormed) subsidiaries.push({ name: `IPO成功IT ${ipoCount}号`, type: "上場子会社", monthlyDividend: 3000000 });
-            addLog(`【🎉 IPO成功】${ipoProfit.toLocaleString()} 円を獲得！`);
-            updateUI();
-        }
-    }
-
-    function payDividends() {
-        let total = Math.floor(stockPrice * 0.05) * shares;
-        if (money >= total && total > 0) {
-            money -= total;
-            stockPrice = Math.floor(stockPrice * 1.25);
-            addLog(`【配当】株価が上昇しました！`);
-            updateUI();
-        }
-    }
-
     function upgradeTech() {
         if (money >= techCost) {
             money -= techCost;
             techLevel++;
             techCost = Math.floor(techCost * 2.2);
-            addLog(`【研究開発】技術 Lv.${techLevel} にアップ！`);
+            log(`【研究開発】技術レベルが Lv.${techLevel} に昇格！`);
             updateUI();
-        }
+        } else { alert("研究開発資金が足りません"); }
+    }
+
+    function issueShares() {
+        let raised = Math.floor(stockPrice * 500 * 0.85);
+        shares += 500;
+        money += raised;
+        stockPrice = Math.max(100, Math.floor(stockPrice * 0.88));
+        log(`【増資】新株を発行し ${raised.toLocaleString()}円 を資金調達しました。`);
+        updateUI();
     }
 
     function buybackShares() {
@@ -565,90 +840,149 @@
         if (shares > 500 && money >= cost) {
             money -= cost;
             shares -= 500;
-            stockPrice = Math.floor(stockPrice * 1.4);
-            addLog(`【自社株買い】株価上昇！`);
+            stockPrice = Math.floor(stockPrice * 1.35);
+            log(`【自社株買い】市場から株を買い戻し、株価が急上昇しました！`);
             updateUI();
-        }
+        } else { alert("資金が足りないか、発行済み株式数が最小です。"); }
     }
 
-    function buyBusiness(type) {
-        if (money >= businesses[type].cost) {
-            money -= businesses[type].cost;
-            businesses[type].count += 1;
-            checkRivalSpawn();
+    function payDividends() {
+        let total = Math.floor(stockPrice * 0.05) * shares;
+        if (money >= total && total > 0) {
+            money -= total;
+            stockPrice = Math.floor(stockPrice * 1.25);
+            log(`【配当】株主還元を実施し、評価（株価）が上がりました。`);
             updateUI();
-        }
+        } else { alert("配当原資が足りません。"); }
     }
 
-    function maAcquire(type, cost, addCount) {
-        if (money >= cost) {
-            money -= cost;
-            businesses[type].count += addCount;
-            addLog(`【M&A成功】事業を買収しました。`);
-            checkRivalSpawn();
+    function ipoSubsidiary() {
+        if (assets.it.count >= 5) {
+            assets.it.count -= 3;
+            let ipoProfit = 30000000 + (ipoCount * 25000000);
+            money += ipoProfit;
+            ipoCount++;
+            if (isHoldingsFormed) subsidiaries.push({ name: `IPO成功IT ${ipoCount}号`, type: "上場子会社", monthlyDividend: 3500000 });
+            log(`【🎉 子会社IPO成功】株式上場により ${ipoProfit.toLocaleString()}円 を獲得！`);
             updateUI();
+        } else { alert("IT事業が5社以上必要です。"); }
+    }
+
+    function updateUI() {
+        document.getElementById('money-display').innerText = money.toLocaleString() + " 円";
+        let year = Math.floor((monthCount - 1) / 12) + 1;
+        let m = ((monthCount - 1) % 12) + 1;
+        document.getElementById('date-display').innerText = `${year}年目 ${m}月`;
+        document.getElementById('profit-display').innerText = lastProfit.toLocaleString() + " 円";
+        document.getElementById('stock-display').innerText = stockPrice.toLocaleString();
+        document.getElementById('exec-bonus-display').innerText = `+${calculateExecutiveBonus()}%`;
+
+        let ev = events[currentEventKey];
+        document.getElementById('event-display').innerText = `【経済状況】${ev.name} (${ev.desc})`;
+
+        for (let key in assets) {
+            let el = document.getElementById(`count-${key}`);
+            if (el) el.innerText = `${assets[key].count}件`;
+        }
+
+        document.getElementById('tech-level').innerText = techLevel;
+        document.getElementById('tech-cost').innerText = techCost.toLocaleString();
+        document.getElementById('ipo-req-it').innerText = assets.it.count;
+        document.getElementById('btn-ipo').disabled = assets.it.count < 5;
+
+        renderGlobalUI();
+        renderRivalUI();
+        renderHoldingsUI();
+        renderEmployeeUI();
+    }
+
+    function renderGlobalUI() {
+        let container = document.getElementById('global-list');
+        let html = '';
+        Object.keys(globalBases).forEach(k => {
+            let b = globalBases[k];
+            if (b.active) {
+                html += `<div class="card" style="background:#e8f0fe;">
+                    <div class="card-title">✅ 【進出済】${b.name}</div>
+                    <div class="card-desc">${b.desc}</div>
+                </div>`;
+            } else {
+                html += `<div class="card">
+                    <div class="card-title">🌐 ${b.name}</div>
+                    <div class="card-desc">${b.desc}</div>
+                    <div class="card-info"><span>進出費: ${b.cost.toLocaleString()}円</span></div>
+                    <button class="btn btn-primary" onclick="expandGlobal('${k}')">拠点を開設</button>
+                </div>`;
+            }
+        });
+        container.innerHTML = html;
+    }
+
+    function renderRivalUI() {
+        let container = document.getElementById('rival-list');
+        if (rivals.length === 0) {
+            container.innerHTML = `<p style="font-size:12px; color:#666; margin-top:5px;">現在、脅威となるライバル企業はいません。</p>`;
+        } else {
+            let html = '';
+            rivals.forEach(r => {
+                html += `<div class="card" style="background:#fce8e6; border-color:#fad2cf;">
+                    <div class="card-title" style="color:#d93025;">⚔️ 競合: ${r.name}</div>
+                    <div class="card-desc">市場シェアが侵奪されています（全社収益 -${r.marketShare}%）</div>
+                    <button class="btn btn-danger" onclick="buyoutRival(${r.id})">${r.buyoutCost.toLocaleString()}円 で買収統合</button>
+                </div>`;
+            });
+            container.innerHTML = html;
         }
     }
 
-    function issueShares() {
-        let raised = Math.floor(stockPrice * 500 * 0.8);
-        shares += 500;
-        money += raised;
-        stockPrice = Math.max(100, stockPrice * 0.85);
-        addLog(`【増資】${raised.toLocaleString()}円獲得。`);
-        updateUI();
-    }
-
-    function nextMonth() {
-        month++;
-        if (month > 12) { month = 1; year++; }
-
-        if (Math.random() < 0.15) {
-            const keys = Object.keys(events);
-            currentEvent = keys[Math.floor(Math.random() * keys.length)];
-            exchangeRate = events[currentEvent].rate;
-            addLog(`【経済変動】${events[currentEvent].name} 発生！`);
-        }
-
-        checkRivalSpawn();
-
-        let evMod = events[currentEvent];
-        let techMult = 1 + (techLevel - 1) * 0.2;
-        let execMult = 1 + (calculateExecutiveBonus() / 100);
-        let synMult = 1 + (calculateGroupSynergy() / 100);
-        let globMult = calculateGlobalMultiplier();
-        let rivPen = 1 - (calculateRivalPenalty() / 100);
-
-        let profit = 0;
-        if (businesses.food.count > 0) profit += (businesses.food.count * 60000) * evMod.food;
-        if (businesses.realestate.count > 0) profit += (businesses.realestate.count * 250000) * evMod.re;
-        if (businesses.it.count > 0) profit += (businesses.it.count * 400000) * evMod.it;
-        if (businesses.game.count > 0) profit += (businesses.game.count * 800000) * evMod.game;
-        if (businesses.energy.count > 0) profit += (businesses.energy.count * 1800000) * evMod.energy;
-
-        profit = profit * techMult * execMult * synMult * globMult * rivPen;
-
-        let subDiv = 0;
-        subsidiaries.forEach(sub => { subDiv += sub.monthlyDividend; });
-
-        let salaries = 0;
-        employees.forEach(emp => { salaries += emp.isExecutive ? 2000000 : 500000; });
-
-        let netIncome = profit + subDiv - salaries;
-        money += netIncome;
-
-        addLog(`${year}年${month}月: 利益+${Math.floor(profit).toLocaleString()}円 / 人件費-${salaries.toLocaleString()}円`);
-        updateUI();
-
-        if (money < 0) {
-            alert("破産しました！ゲームオーバーです。");
-            location.reload();
+    function renderHoldingsUI() {
+        let container = document.getElementById('holdings-container');
+        if (!isHoldingsFormed) {
+            container.innerHTML = `<div class="card">
+                <div class="card-title">🏛️ 持株会社（親会社）の設立</div>
+                <div class="card-desc">グループ傘下を統括するホールディングスを設立し、グループシナジーを発揮させます。</div>
+                <button class="btn btn-purple" onclick="formHoldings()">50,000,000円 で持株会社を設立</button>
+            </div>`;
+        } else {
+            document.getElementById('app-title').innerText = `🌐 ${holdingName}`;
+            let subList = subsidiaries.map(s => `<li><b>${s.name}</b> (+${s.monthlyDividend.toLocaleString()}円/月)</li>`).join('');
+            container.innerHTML = `<div class="card" style="background:#f3e8fd;">
+                <div class="card-title">👑 親会社: ${holdingName}</div>
+                <div class="card-desc">グループシナジー効果: <b>+${calculateGroupSynergy()}%</b></div>
+                <button class="btn btn-purple" style="margin-bottom:10px;" onclick="createNewSubsidiary()">30,000,000円 で子会社を新設</button>
+                <div style="font-size:12px; font-weight:bold; margin-bottom:4px;">【傘下子会社リスト】</div>
+                <ul style="font-size:12px; padding-left:18px;">${subList}</ul>
+            </div>`;
         }
     }
 
-    function addLog(text) {
-        const logBox = document.getElementById('log');
-        logBox.innerHTML = `> ${text}<br>` + logBox.innerHTML;
+    function renderEmployeeUI() {
+        let container = document.getElementById('employee-list');
+        let html = '';
+        employees.forEach(e => {
+            html += `<div class="card">
+                <div class="card-title">
+                    <span>${e.name}</span>
+                    ${e.isExecutive ? '<span class="badge-executive">役員</span>' : '<span class="card-badge">一般社員</span>'}
+                </div>
+                <div class="card-info">
+                    <span>能力: <b>${e.skill}</b></span>
+                    <span>給料: ${(e.isExecutive ? 2000000 : 500000).toLocaleString()}円/月</span>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    ${e.isExecutive ? 
+                        `<button class="btn btn-warning" onclick="toggleExecutive(${e.id})">役員解任</button>` : 
+                        `<button class="btn btn-success" onclick="toggleExecutive(${e.id})">役員昇進</button>`}
+                    <button class="btn btn-danger" onclick="fireEmployee(${e.id})">解雇</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function log(msg) {
+        let box = document.getElementById('log-box');
+        box.innerHTML = `> ${msg}<br>` + box.innerHTML;
     }
 
     updateUI();
