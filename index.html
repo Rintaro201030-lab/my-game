@@ -281,6 +281,9 @@
             border-radius: 4px;
             font-weight: bold;
         }
+
+        .stock-up { color: var(--accent-green); font-weight: bold; }
+        .stock-down { color: var(--accent-red); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -317,6 +320,7 @@
     <!-- メインカテゴリナビゲーション（横スクロール） -->
     <div class="nav-tabs">
         <button class="tab-btn active" onclick="switchPage('page-biz', this)">🏢 国内15事業</button>
+        <button class="tab-btn" onclick="switchPage('page-market', this)">📊 株式市場</button>
         <button class="tab-btn" onclick="switchPage('page-global', this)">🌐 海外拠点</button>
         <button class="tab-btn" onclick="switchPage('page-ma', this)">🤝 M&A・競合</button>
         <button class="tab-btn" onclick="switchPage('page-holdings', this)">🏛️ 持株会社</button>
@@ -412,7 +416,7 @@
             <div class="card">
                 <div class="card-title"><span>🎰 カジノリゾート</span> <span class="card-badge" id="count-casino">0件</span></div>
                 <div class="card-desc">【ハイリスク】景気に極端に左右される波のある事業。</div>
-                <div class="card-info"><span>価格: 1,500万円</span><span>基礎月収: 120万円</span></div>
+                <div class="card-info"><span>価格: 150万円</span><span>基礎月収: 120万円</span></div>
                 <button class="btn btn-primary" onclick="buyAsset('casino')">事業を購入</button>
             </div>
             <div class="card">
@@ -434,6 +438,15 @@
                 <button class="btn btn-primary" onclick="buyAsset('space')">事業を購入</button>
             </div>
         </div>
+    </div>
+
+    <!-- ==================== 新機能: 株式市場ページ ==================== -->
+    <div id="page-market" class="page-content">
+        <div class="card">
+            <div class="card-title">📊 リアルタイム株式市場（他社・競合）</div>
+            <div class="card-desc">世界経済や各社の業績、プレイヤーのアクション（関連事業拡大・M&A）に応じてリアルタイムに株価と収益が変動します。</div>
+        </div>
+        <div id="market-list"></div>
     </div>
 
     <!-- ==================== 2. 海外拠点ページ ==================== -->
@@ -522,7 +535,7 @@
         <div class="log-header">📋 経営インフォメーションアナウンス</div>
         <div class="log-box" id="log-box">
             > メガコングロマリット経営シミュレーターがスタートしました。<br>
-            > 各タブを切り替えて国内15事業、海外進出、M&Aを展開しましょう。
+            > 各タブを切り替えて国内15事業、海外進出、株式売買、M&Aを展開しましょう。
         </div>
     </div>
 </div>
@@ -541,6 +554,14 @@
     let holdingName = "";
     let subsidiaries = [];
     let rivals = [];
+
+    // --- リアルタイム市場銘柄リスト ---
+    let marketCompanies = [
+        { id: 'global_food', name: '全日本フードHD', baseRevenue: 45000000, revenue: 45000000, stockPrice: 2400, prevPrice: 2400, ownedShares: 0, sector: 'food' },
+        { id: 'nexus_tech', name: 'ネクサス・テック', baseRevenue: 120000000, revenue: 120000000, stockPrice: 8500, prevPrice: 8500, ownedShares: 0, sector: 'tech' },
+        { id: 'titan_realestate', name: 'タイタン不動産開発', baseRevenue: 80000000, revenue: 80000000, stockPrice: 4200, prevPrice: 4200, ownedShares: 0, sector: 'realestate' },
+        { id: 'hyper_space', name: 'ハイパー・スペースX', baseRevenue: 300000000, revenue: 300000000, stockPrice: 15000, prevPrice: 15000, ownedShares: 0, sector: 'space' }
+    ];
 
     let globalBases = {
         asia: { name: "アジア太平洋（シンガポール/上海）", cost: 100000000, active: false, bonus: 0.3, desc: "新興国成長で全体の収益底上げ" },
@@ -596,12 +617,31 @@
         btnEl.classList.add('active');
     }
 
+    // --- プレイヤーのアクションによる市場影響ロジック ---
+    function triggerMarketImpact(sector, impactValue) {
+        marketCompanies.forEach(company => {
+            if (company.sector === sector || (sector === 'tech' && (company.sector === 'space' || company.sector === 'tech'))) {
+                let delta = impactValue * (0.02 + Math.random() * 0.03);
+                company.revenue += delta * 10;
+                company.stockPrice = Math.floor(company.stockPrice + delta);
+            }
+        });
+    }
+
     function buyAsset(key) {
         let item = assets[key];
         if (money >= item.cost) {
             money -= item.cost;
             item.count++;
             log(`【購入】${getAssetName(key)} を1件追加導入しました。`);
+            
+            // アクション連動: 同業種の株価を刺激
+            let sector = (key === 'food' || key === 'cafe') ? 'food' :
+                         (key === 'it' || key === 'game' || key === 'ai' || key === 'quantum') ? 'tech' :
+                         (key === 'realestate') ? 'realestate' :
+                         (key === 'space') ? 'space' : 'other';
+            triggerMarketImpact(sector, item.cost * 0.0001);
+
             checkRivalSpawn();
             updateUI();
         } else {
@@ -648,6 +688,57 @@
         return Math.min(subsidiaries.length * 5, 50);
     }
 
+    // --- 株式売買システム ---
+    function buyCompanyStock(companyId, amount) {
+        let company = marketCompanies.find(c => c.id === companyId);
+        if (!company) return;
+        let cost = company.stockPrice * amount;
+        if (money >= cost) {
+            money -= cost;
+            company.ownedShares += amount;
+            // 自社による大量買いで株価微増
+            company.stockPrice = Math.floor(company.stockPrice * 1.02);
+            log(`【株式購入】${company.name} の株式を ${amount}株 買い付けました。`);
+            updateUI();
+        } else {
+            alert("資金が足りません。");
+        }
+    }
+
+    function sellCompanyStock(companyId, amount) {
+        let company = marketCompanies.find(c => c.id === companyId);
+        if (!company || company.ownedShares < amount) {
+            alert("保有株数が足りません。");
+            return;
+        }
+        let revenue = company.stockPrice * amount;
+        money += revenue;
+        company.ownedShares -= amount;
+        // 売却による売り圧力で株価微減
+        company.stockPrice = Math.max(10, Math.floor(company.stockPrice * 0.98));
+        log(`【株式売却】${company.name} の株式を ${amount}株 売却し、${revenue.toLocaleString()}円 を得ました。`);
+        updateUI();
+    }
+
+    // --- 市場株価・収益のリアルタイム（毎ターン）変動ロジック ---
+    function updateMarketStocks() {
+        let ev = events[currentEventKey];
+        marketCompanies.forEach(company => {
+            company.prevPrice = company.stockPrice;
+            
+            // 経済イベントの感度調整
+            let eventImpact = (ev.mod - 1.0) * 0.5;
+            let randomFluctuation = (Math.random() - 0.48) * 0.08; // やや右肩上がり傾向
+            
+            // 収益の変動
+            company.revenue = Math.floor(company.baseRevenue * (1 + eventImpact + randomFluctuation));
+            
+            // 株価の計算
+            let priceChangeRatio = 1 + eventImpact + randomFluctuation;
+            company.stockPrice = Math.max(100, Math.floor(company.stockPrice * priceChangeRatio));
+        });
+    }
+
     function nextMonth() {
         monthCount++;
         
@@ -656,6 +747,9 @@
             currentEventKey = keys[Math.floor(Math.random() * keys.length)];
             log(`【経済変動】「${events[currentEventKey].name}」が発生しました。`);
         }
+
+        // 株式市場のリアルタイム変動実行
+        updateMarketStocks();
 
         let ev = events[currentEventKey];
         let techMult = 1 + (techLevel - 1) * 0.2;
@@ -689,17 +783,29 @@
 
         grossProfit = grossProfit * techMult * execMult * synMult * globMult * rivPen * robotEfficiency;
 
+        // 他社株式の配当金還元（保有株に応じた毎月収入）
+        let portfolioDividends = 0;
+        marketCompanies.forEach(c => {
+            if (c.ownedShares > 0) {
+                portfolioDividends += Math.floor((c.revenue * 0.00001) * c.ownedShares);
+            }
+        });
+
         let subDiv = 0;
         subsidiaries.forEach(s => subDiv += s.monthlyDividend);
 
         let salaries = 0;
         employees.forEach(e => salaries += e.isExecutive ? 2000000 : 500000);
 
-        let netIncome = Math.floor(grossProfit + subDiv - salaries);
+        let netIncome = Math.floor(grossProfit + subDiv + portfolioDividends - salaries);
         money += netIncome;
         lastProfit = netIncome;
 
-        log(`${monthCount}月度決算: 純利益 +${netIncome.toLocaleString()}円 (人件費: -${salaries.toLocaleString()}円)`);
+        // 自社株価の連動更新
+        stockPrice = Math.max(100, Math.floor(stockPrice * (1 + (netIncome > 0 ? 0.02 : -0.03))));
+
+        let divMsg = portfolioDividends > 0 ? ` (株式配当益: +${portfolioDividends.toLocaleString()}円含む)` : '';
+        log(`${monthCount}月度決算: 純利益 +${netIncome.toLocaleString()}円${divMsg}`);
 
         checkRivalSpawn();
         updateUI();
@@ -740,6 +846,8 @@
         money -= cost;
         assets[type].count += addCount;
         log(`【M&A実行】${getAssetName(type)}を ${addCount}件 一括買収しました。`);
+        
+        triggerMarketImpact(type === 'food' ? 'food' : 'realestate', cost * 0.00005);
         checkRivalSpawn();
         updateUI();
     }
@@ -752,6 +860,7 @@
         assets.game.count += 5;
         stockPrice = Math.floor(stockPrice * 1.4);
         log(`【🌍 巨額M&A】米国テックファンドの全アセットを取得完了！`);
+        triggerMarketImpact('tech', 0.15);
         checkRivalSpawn();
         updateUI();
     }
@@ -822,6 +931,7 @@
             techLevel++;
             techCost = Math.floor(techCost * 2.2);
             log(`【研究開発】技術レベルが Lv.${techLevel} に昇格！`);
+            triggerMarketImpact('tech', 0.05);
             updateUI();
         } else { alert("研究開発資金が足りません"); }
     }
@@ -864,6 +974,7 @@
             ipoCount++;
             if (isHoldingsFormed) subsidiaries.push({ name: `IPO成功IT ${ipoCount}号`, type: "上場子会社", monthlyDividend: 3500000 });
             log(`【🎉 子会社IPO成功】株式上場により ${ipoProfit.toLocaleString()}円 を獲得！`);
+            triggerMarketImpact('tech', 0.1);
             updateUI();
         } else { alert("IT事業が5社以上必要です。"); }
     }
@@ -890,10 +1001,39 @@
         document.getElementById('ipo-req-it').innerText = assets.it.count;
         document.getElementById('btn-ipo').disabled = assets.it.count < 5;
 
+        renderMarketUI();
         renderGlobalUI();
         renderRivalUI();
         renderHoldingsUI();
         renderEmployeeUI();
+    }
+
+    // --- 株式市場UIのレンダリング ---
+    function renderMarketUI() {
+        let container = document.getElementById('market-list');
+        let html = '';
+        marketCompanies.forEach(c => {
+            let diff = c.stockPrice - c.prevPrice;
+            let diffClass = diff >= 0 ? 'stock-up' : 'stock-down';
+            let diffSign = diff >= 0 ? '+' : '';
+            
+            html += `<div class="card">
+                <div class="card-title">
+                    <span>🏢 ${c.name}</span>
+                    <span class="${diffClass}">${c.stockPrice.toLocaleString()} 円 (${diffSign}${diff})</span>
+                </div>
+                <div class="card-desc">直近推定月収: <b>${c.revenue.toLocaleString()} 円</b></div>
+                <div class="card-info">
+                    <span>保有株式: <b>${c.ownedShares.toLocaleString()} 株</b></span>
+                    <span>評価額: <b>${(c.ownedShares * c.stockPrice).toLocaleString()} 円</b></span>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn btn-primary" onclick="buyCompanyStock('${c.id}', 10)">10株買う (${(c.stockPrice*10).toLocaleString()}円)</button>
+                    <button class="btn btn-warning" onclick="sellCompanyStock('${c.id}', 10)" ${c.ownedShares < 10 ? 'disabled' : ''}>10株売る</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
     }
 
     function renderGlobalUI() {
