@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>全産業コングロマリット経営シミュレーター FULL</title>
+    <title>アルティメット・グローバル・コングロマリット・シミュレーター</title>
     <style>
         :root {
-            --primary: #1e293b;
-            --primary-accent: #2563eb;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --card-inner: #0f172a;
-            --text: #f8fafc;
+            --bg: #0b0f19;
+            --card-bg: #151c2c;
+            --card-inner: #0d121d;
+            --text: #f1f5f9;
             --sub-text: #94a3b8;
+            --accent-blue: #38bdf8;
             --accent-green: #10b981;
             --accent-red: #ef4444;
-            --border: #334155;
+            --accent-yellow: #f59e0b;
+            --accent-purple: #a855f7;
+            --border: #243048;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -24,139 +25,139 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg);
             color: var(--text);
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.4;
             padding-bottom: 30px;
         }
 
-        .container { max-width: 720px; margin: 0 auto; padding: 10px; }
+        .container { max-width: 800px; margin: 0 auto; padding: 10px; }
 
         .app-header {
             text-align: center;
-            padding: 12px;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+            padding: 10px;
+            background: linear-gradient(135deg, #1e1b4b, #0f172a);
             border: 1px solid var(--border);
             border-radius: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        .app-header h1 { font-size: 18px; font-weight: 800; color: #38bdf8; }
-        .company-tag { font-size: 11px; color: var(--sub-text); margin-top: 2px; }
+        .app-header h1 { font-size: 16px; font-weight: 800; color: var(--accent-blue); }
+        .company-tag { font-size: 10px; color: var(--sub-text); margin-top: 2px; }
 
         .dashboard {
             background: var(--card-bg);
             border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
             border: 1px solid var(--border);
         }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 
-        .stat-card { background: var(--card-inner); padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border); }
-        .stat-label { font-size: 10px; color: var(--sub-text); font-weight: 600; }
-        .stat-value { font-size: 12px; font-weight: 800; color: var(--text); }
-        .stat-value.money { color: #38bdf8; }
+        .stat-card { background: var(--card-inner); padding: 4px 6px; border-radius: 6px; border: 1px solid var(--border); }
+        .stat-label { font-size: 9px; color: var(--sub-text); font-weight: 600; }
+        .stat-value { font-size: 11px; font-weight: 800; color: var(--text); }
+        .stat-value.money { color: var(--accent-blue); }
         .stat-value.profit { color: var(--accent-green); }
 
         .btn-turn {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 800;
-            margin-top: 10px;
+            margin-top: 8px;
             cursor: pointer;
         }
-
-        .btn-turn:active { opacity: 0.85; }
 
         .nav-tabs {
             display: flex;
             gap: 4px;
+            margin-bottom: 8px;
             overflow-x: auto;
-            padding-bottom: 6px;
-            margin-bottom: 10px;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 8px 6px;
-            font-size: 11px;
+            padding: 8px 4px;
+            font-size: 10px;
             font-weight: 700;
             border: 1px solid var(--border);
             background: var(--card-bg);
             color: var(--sub-text);
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             text-align: center;
             white-space: nowrap;
         }
 
-        .tab-btn.active { background: var(--primary-accent); color: white; border-color: var(--primary-accent); }
+        .tab-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
 
         .page-content { display: none; }
         .page-content.active { display: block; }
 
         .card {
             background: var(--card-bg);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 8px;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 6px;
             border: 1px solid var(--border);
         }
 
-        .card-title { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-        .card-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #334155; color: #38bdf8; }
-        .card-desc { font-size: 11px; color: var(--sub-text); margin-bottom: 6px; }
+        .card-title { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+        .card-badge { font-size: 9px; padding: 2px 4px; border-radius: 4px; background: #334155; color: var(--accent-blue); }
+        .card-desc { font-size: 10px; color: var(--sub-text); margin-bottom: 4px; }
+        .card-info { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 6px; color: var(--sub-text); }
+        .card-info b { color: var(--text); }
 
-        .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 6px; }
+        .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
 
         .btn {
-            display: inline-block;
+            display: block;
             width: 100%;
-            padding: 8px 4px;
-            font-size: 11px;
+            padding: 6px 4px;
+            font-size: 10px;
             font-weight: 700;
             text-align: center;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
         }
 
-        .btn-primary { background: var(--primary-accent); color: white; }
-        .btn-danger { background: var(--accent-red); color: white; }
+        .btn-primary { background: #2563eb; color: white; }
         .btn-success { background: var(--accent-green); color: white; }
+        .btn-danger { background: var(--accent-red); color: white; }
+        .btn-purple { background: var(--accent-purple); color: white; }
 
         .log-section {
             background: #020617;
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 8px;
-            margin-top: 10px;
+            padding: 6px;
+            margin-top: 8px;
             font-family: monospace;
             font-size: 10px;
         }
 
-        .log-box { height: 90px; overflow-y: auto; color: #38bdf8; line-height: 1.4; }
+        .log-box { height: 90px; overflow-y: auto; color: var(--accent-blue); line-height: 1.3; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="app-header">
-        <h1>🌐 GLOBAL CONGLOMERATE EMPIRE</h1>
-        <div class="company-tag">創業企業: ネクスト・アグリ＆テック</div>
+        <h1>🌐 ULTIMATE CONGLOMERATE EMPIRE</h1>
+        <div class="company-tag">創業企業: ネクスト・アグリ＆テック | 全領域統合シミュレーター</div>
     </div>
 
     <!-- ダッシュボード -->
     <div class="dashboard">
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">手元資金</div>
+                <div class="stat-label">所持資金</div>
                 <div class="stat-value money" id="cash-display">50.0億円</div>
             </div>
             <div class="stat-card">
@@ -168,85 +169,128 @@
                 <div class="stat-value profit" id="profit-display">0.0億円</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">世界シェア</div>
-                <div class="stat-value" id="share-display">1.0%</div>
+                <div class="stat-label">売掛 / 買掛</div>
+                <div class="stat-value" id="cashflow-display">0/0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">市況動向</div>
-                <div class="stat-value" id="trend-display">安定</div>
+                <div class="stat-label">為替 / トレンド</div>
+                <div class="stat-value" id="fx-display">150円 | 安定</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">モチベーション/セクショナリズム</div>
+                <div class="stat-value" id="org-display">85% | 5%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">評判 / ESG</div>
+                <div class="stat-value" id="rep-display">70 / 20</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">CEO個人資産</div>
-                <div class="stat-value money" id="asset-display">50.0億円</div>
+                <div class="stat-value money" id="ceo-asset-display">50.0億円</div>
             </div>
         </div>
         <button class="btn-turn" onclick="nextQuarter()">▶ 1四半期（3ヶ月）進める</button>
     </div>
 
-    <!-- タブメニュー -->
+    <!-- タブ切替 -->
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchPage('page-org', this)">👥 人事・サプライチェーン</button>
-        <button class="tab-btn" onclick="switchPage('page-ma', this)">🤝 M&A（17業界）</button>
-        <button class="tab-btn" onclick="switchPage('page-invest', this)">🚀 未来投資・メガ</button>
+        <button class="tab-btn active" onclick="switchPage('page-base', this)">🏢 創業事業・組織・SCM</button>
+        <button class="tab-btn" onclick="switchPage('page-global', this)">🌍 地政学・メガコーポ</button>
+        <button class="tab-btn" onclick="switchPage('page-ma', this)">🤝 M&A市場 (全19産業)</button>
+        <button class="tab-btn" onclick="switchPage('page-invest', this)">💎 CSR・インフラ・CEO資産</button>
     </div>
 
-    <!-- タブ 1: 人事・サプライチェーン -->
-    <div id="page-org" class="page-content active">
+    <!-- タブ1: 創業事業・組織・サプライチェーン -->
+    <div id="page-base" class="page-content active">
         <div class="card">
-            <div class="card-title">👥 人材採用・研修・給与</div>
-            <div class="card-desc">人員規模とモチベーションを最適化し、大企業病の進行を防ぎます。</div>
+            <div class="card-title">🌱 自社創業事業（ネクスト・アグリ＆テック）</div>
+            <div class="card-desc">スマート農園・データ基盤・物流拠点を拡張します。</div>
+            <div class="card-info">
+                <span>農園: <b id="plant-count">0</b> | 基盤: <b id="data-count">0</b> | 物流: <b id="logistics-count">0</b></span>
+            </div>
             <div class="btn-grid">
-                <button class="btn btn-primary" onclick="hireEmployees('eng', 5)">エンジニア5名採用 (2,500万円)</button>
-                <button class="btn btn-primary" onclick="hireEmployees('sales', 5)">営業社員5名採用 (2,500万円)</button>
-                <button class="btn btn-primary" onclick="hireEmployees('mgr', 2)">管理職2名採用 (1,000万円)</button>
-                <button class="btn btn-success" onclick="holdCorporateTraining()">全社研修の実施 (2,000万円)</button>
+                <button class="btn btn-primary" onclick="investFacility('plant', 5.0)">スマート農園 (5億円)</button>
+                <button class="btn btn-primary" onclick="investFacility('data', 15.0)">データ基盤 (15億円)</button>
+                <button class="btn btn-primary" onclick="investFacility('logistics', 40.0)">自動化拠点 (40億円)</button>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-title">📦 サプライチェーン & 危機管理</div>
-            <div class="card-desc">調達網の最適化、広報PRによる炎上防止、金融機関からの調達を行います。</div>
+            <div class="card-title">👥 人材・組織ダイナミクス</div>
+            <div class="card-desc">採用・研修でモチベーション維持とセクショナリズム低減を図ります。</div>
             <div class="btn-grid">
-                <button class="btn btn-primary" onclick="setSupplyChainMode('GLOBAL')">SC海外切替 (低原価/為替高調達)</button>
-                <button class="btn btn-primary" onclick="setSupplyChainMode('DOMESTIC')">SC国内切替 (安定供給)</button>
-                <button class="btn btn-success" onclick="investInPR(20000000)">広報PR活動 (2,000万円)</button>
-                <button class="btn btn-primary" onclick="takeBankLoan(5000000000)">銀行融資実行 (+50億円)</button>
+                <button class="btn btn-primary" onclick="hireStaff('eng', 5, 2.5)">エンジニア5名 (2.5億円)</button>
+                <button class="btn btn-primary" onclick="hireStaff('sales', 5, 2.5)">営業社員5名 (2.5億円)</button>
+                <button class="btn btn-success" onclick="holdTraining(2.0)">全社研修 (2億円)</button>
+                <button class="btn btn-success" onclick="raiseSalary()">給料水準アップ (+10%)</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📦 サプライチェーン & 資金繰り</div>
+            <div class="card-desc">調達の切り替え、銀行融資、広報PRで危機管理を行います。</div>
+            <div class="btn-grid">
+                <button class="btn btn-primary" onclick="toggleSCM('GLOBAL')">SCM海外切替 (コスト重視)</button>
+                <button class="btn btn-primary" onclick="toggleSCM('DOMESTIC')">SCM国内切替 (安定重視)</button>
+                <button class="btn btn-success" onclick="takeBankLoan(50.0)">銀行融資 (+50億円)</button>
+                <button class="btn btn-success" onclick="investPR(2.0)">広報PR活動 (2億円)</button>
             </div>
         </div>
     </div>
 
-    <!-- タブ 2: 全17産業M&A -->
+    <!-- タブ2: 地政学・メガコーポ対決 -->
+    <div id="page-global" class="page-content">
+        <div class="card">
+            <div class="card-title">🌍 海外進出 & 地政学リスク</div>
+            <div class="card-desc">各地域へ進出し、ローカライズ投資やロビー活動を行います。</div>
+            <div class="btn-grid">
+                <button class="btn btn-primary" onclick="investLocalization(30.0)">現地化投資 (30億円)</button>
+                <button class="btn btn-primary" onclick="executeLobbying(50.0)">政治ロビー活動 (50億円)</button>
+            </div>
+        </div>
+        <div id="global-region-list"></div>
+        <div id="megacorp-list"></div>
+    </div>
+
+    <!-- タブ3: 全19産業 M&A -->
     <div id="page-ma" class="page-content">
-        <div class="card">
-            <div class="card-title">🏛️ 地政学・政治ロビー活動</div>
-            <div class="card-desc">現地化投資で地政学リスクを下げ、ロビー活動で世界標準（デファクト）を狙います。</div>
-            <div class="btn-grid">
-                <button class="btn btn-primary" onclick="investInLocalization()">海外現地化投資 (30億円)</button>
-                <button class="btn btn-primary" onclick="executeLobbying()">政治ロビー活動 (50億円)</button>
+        <div class="card" style="border-color: var(--accent-purple);">
+            <div class="card-title">⚡ 垂直統合 & 世界制覇条件</div>
+            <div class="card-desc" id="win-condition-text">
+                全19産業買収、世界シェア過半数、またはデファクトスタンダード確立を目指します。
             </div>
         </div>
         <div id="ma-list"></div>
     </div>
 
-    <!-- タブ 3: 多角投資・メガプロジェクト -->
+    <!-- タブ4: CSR・インフラ・CEOプライベート・未来技術 -->
     <div id="page-invest" class="page-content">
         <div class="card">
-            <div class="card-title">🌱 ESG・文化・メガプロジェクト</div>
-            <div class="card-desc">巨額の余剰資金を社会インフラや宇宙、CSR活動へ投じます。</div>
+            <div class="card-title">🌱 CSR・ESG & 文化・スポーツ支援</div>
+            <div class="card-desc">社会還元によりイメージ向上と税制優遇を獲得します。</div>
             <div class="btn-grid">
-                <button class="btn btn-success" onclick="investInESG()">ESG投資 (50億円/税制優遇)</button>
-                <button class="btn btn-primary" onclick="buySportsTeam()">プロ球団買収 (150億円)</button>
-                <button class="btn btn-primary" onclick="buildSmartCity()">スマートシティ建設 (500億円)</button>
-                <button class="btn btn-danger" onclick="investSpaceProject()">宇宙開発計画 (1,000億円)</button>
+                <button class="btn btn-success" onclick="investESG(50.0)">ESG投資 (50億円)</button>
+                <button class="btn btn-success" onclick="buySportsTeam(150.0)">プロ球団買収 (150億円)</button>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-title">💎 CEOプライベート投資</div>
-            <div class="card-desc">経営者個人の資産価値を向上させます。</div>
+            <div class="card-title">🏙️ 国家・インフラ・未来技術</div>
+            <div class="card-desc">巨大インフラ建設や最先端メガプロジェクトへの投資。</div>
             <div class="btn-grid">
-                <button class="btn btn-primary" onclick="buyHeadquarters()">超高層ビル本社建設 (300億円)</button>
-                <button class="btn btn-primary" onclick="buyPrivateJet()">プライベートジェット購入 (100億円)</button>
+                <button class="btn btn-purple" onclick="buildSmartCity(500.0)">スマートシティ建設 (500億円)</button>
+                <button class="btn btn-purple" onclick="investSpaceProject(1000.0)">宇宙開発計画 (1000億円)</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">💎 CEOプライベート投資 & 街の開拓</div>
+            <div class="card-desc">個人の資産を使って自邸の建設や独自の街を開拓します。</div>
+            <div class="btn-grid">
+                <button class="btn btn-primary" onclick="buyHeadquarters(300.0)">超高層ビル本社 (300億円)</button>
+                <button class="btn btn-primary" onclick="buyPrivateJet(100.0)">プライベートジェット (100億円)</button>
+                <button class="btn btn-purple" onclick="buildCEOHouse(50.0)">個人の大邸宅建設 (50億円)</button>
+                <button class="btn btn-purple" onclick="developPrivateTown(200.0)">個人所有の街を開拓 (200億円)</button>
             </div>
         </div>
     </div>
@@ -259,290 +303,519 @@
 
 <script>
 // ==========================================
-// 全システム統合JavaScriptロジック
+// 完全全要素網羅 コングロマリットゲームロジック
 // ==========================================
 
 const GameState = {
     year: 2026,
     quarter: 1,
-    cash: 5000000000,
-    accountsReceivable: 800000000,
-    accountsPayable: 400000000,
-    loanBalance: 0,
-    marketCap: 10000000000,
-    brandValue: 50,
+    cash: 50.0, // 億円単位
+    accountsReceivable: 10.0,
+    accountsPayable: 5.0,
+    loanBalance: 0.0,
+    
+    // 創業事業
+    plants: 0,
+    dataBases: 0,
+    logistics: 0,
+
+    // 組織ダイナミクス
+    staffEng: 10,
+    staffSales: 15,
+    staffMgr: 5,
+    salaryLevel: 100,
+    employeeMotivation: 85,
+    sectionalismLevel: 5,
+    turnoverRisk: 5,
+
+    // サプライチェーン & マクロ
+    supplyChain: 'DOMESTIC',
+    exchangeRate: 150.0,
     economicTrend: '安定',
     costMultiplier: 1.0,
     demandMultiplier: 1.0,
-    exchangeRate: 150.0,
-    supplyChain: 'DOMESTIC',
-    inHouseProduction: true,
-    staffEngineers: 10,
-    staffSales: 15,
-    staffManagers: 5,
-    staffSalaryLevel: 100,
-    employeeMotivation: 85,
-    sectionalismLevel: 5,
+
+    // 評判・ESG・政治
     snsReputation: 70,
+    esgScore: 20,
+    taxDiscount: 0.0,
     lobbyingPower: 10,
     geopoliticalRisk: 15,
     isDefactoStandard: false,
-    verticalIntegrated: false,
-    globalShare: 1.0,
-    worldGdpShare: 0.1,
-    esgScore: 20,
-    taxDiscount: 0.0,
-    ceoPrivateAssets: 5000000000,
+
+    // CEO個人資産 & プライベートプロジェクト
+    ceoAssets: 50.0,
     hasProTeam: false,
     smartCityBuilt: false,
     spaceProjectBuilt: false,
     headquartersBuilt: false,
     privateJetBought: false,
-    logs: [],
-    lastNetProfit: 0,
+    ceoHouseBuilt: false,
+    privateTownBuilt: false,
+
+    // 勝敗・進行フラグ
     gameOver: false,
     gameCleared: false,
+    lastNetProfit: 0.0,
+    lastOverhead: 0.0,
+    logs: [],
 
+    // 19産業M&Aターゲット
     maTargets: [
-        { id: 'forestry', industry: '林業', name: '日本森林HD', cost: 12000000000, dividend: 1200000000, shareAdd: 0.5, acquired: false },
-        { id: 'fishery', industry: '水産業', name: 'オーシャン・オーガニック', cost: 25000000000, dividend: 2200000000, shareAdd: 0.8, acquired: false },
-        { id: 'apparel', industry: 'アパレル', name: 'グローバル・マテリアル', cost: 50000000000, dividend: 4200000000, shareAdd: 1.2, acquired: false },
-        { id: 'food', industry: '食品製造', name: 'ワールド・フード', cost: 100000000000, dividend: 8000000000, shareAdd: 2.0, acquired: false },
-        { id: 'service', industry: 'サービス', name: 'オリエンタル・リゾート', cost: 180000000000, dividend: 14000000000, shareAdd: 2.5, acquired: false },
-        { id: 'retail', industry: '小売卸売', name: 'ユニバーサル・マート', cost: 320000000000, dividend: 24000000000, shareAdd: 3.5, acquired: false },
-        { id: 'transport', industry: '運輸物流', name: 'グローバル・ロジ', cost: 550000000000, dividend: 40000000000, shareAdd: 4.5, acquired: false },
-        { id: 'construction', industry: '建設業', name: '大日本都市建設', cost: 900000000000, dividend: 65000000000, shareAdd: 5.0, acquired: false },
-        { id: 'realestate', industry: '不動産', name: 'メトロ・プロパティーズ', cost: 1500000000000, dividend: 110000000000, shareAdd: 6.0, acquired: false },
-        { id: 'mining', industry: '鉱業', name: 'パシフィック・リソース', cost: 2400000000000, dividend: 170000000000, shareAdd: 7.0, acquired: false },
-        { id: 'steel', industry: '鉄鋼金属', name: 'ナショナル・スチール', cost: 3800000000000, dividend: 260000000000, shareAdd: 8.0, acquired: false },
-        { id: 'machinery', industry: '機械製造', name: '重工メカニクスHD', cost: 6000000000000, dividend: 400000000000, shareAdd: 9.0, acquired: false },
-        { id: 'pharma', industry: '医薬品', name: 'ノヴァ・ファーマ', cost: 9500000000000, dividend: 620000000000, shareAdd: 10.0, acquired: false },
-        { id: 'chemical', industry: '化学工業', name: 'アドバンスド・ケミカル', cost: 14000000000000, dividend: 900000000000, shareAdd: 11.0, acquired: false },
-        { id: 'it', industry: 'IT通信', name: 'ワールド・サーチ', cost: 22000000000000, dividend: 1400000000000, shareAdd: 13.0, acquired: false },
-        { id: 'auto', industry: '自動車', name: 'トータル・モビリティ', cost: 35000000000000, dividend: 2200000000000, shareAdd: 15.0, acquired: false },
-        { id: 'finance', industry: '金融保険', name: 'メガ・ファイナンシャル', cost: 50000000000000, dividend: 3100000000000, shareAdd: 18.0, acquired: false }
+        { id: 'forestry', industry: '林業', name: '日本森林ホールディングス', cost: 120, dividend: 12, shareAdd: 0.5, acquired: false, pmiDone: false },
+        { id: 'fishery', industry: '水産業', name: 'オーシャン・オーガニック', cost: 250, dividend: 22, shareAdd: 0.8, acquired: false, pmiDone: false },
+        { id: 'apparel', industry: '繊維・アパレル', name: 'グローバル・マテリアル・アパレル', cost: 500, dividend: 42, shareAdd: 1.2, acquired: false, pmiDone: false },
+        { id: 'food', industry: '食品製造業', name: 'ワールド・フード・フーズ', cost: 1000, dividend: 80, shareAdd: 2.0, acquired: false, pmiDone: false },
+        { id: 'service', industry: 'サービス業（観光・外食）', name: 'オリエンタル・リゾート＆レジャー', cost: 1800, dividend: 140, shareAdd: 2.5, acquired: false, pmiDone: false },
+        { id: 'retail', industry: '小売・卸売業', name: 'ユニバーサル・マート', cost: 3200, dividend: 240, shareAdd: 3.5, acquired: false, pmiDone: false },
+        { id: 'transport', industry: '運輸・物流業', name: 'グローバル・ロジスティクス', cost: 5500, dividend: 400, shareAdd: 4.5, acquired: false, pmiDone: false },
+        { id: 'construction', industry: '建設業', name: '大日本都市建設', cost: 9000, dividend: 650, shareAdd: 5.0, acquired: false, pmiDone: false },
+        { id: 'realestate', industry: '不動産業', name: 'メトロ・プロパティーズ', cost: 15000, dividend: 1100, shareAdd: 6.0, acquired: false, pmiDone: false },
+        { id: 'mining', industry: '鉱業', name: 'パシフィック・リソース＆マイン', cost: 24000, dividend: 1700, shareAdd: 7.0, acquired: false, pmiDone: false },
+        { id: 'steel', industry: '鉄鋼・金属工業', name: 'ナショナル・スチール＆メタル', cost: 38000, dividend: 2600, shareAdd: 8.0, acquired: false, pmiDone: false },
+        { id: 'machinery', industry: '機械製造業', name: '重工メカニクスホールディングス', cost: 60000, dividend: 4000, shareAdd: 9.0, acquired: false, pmiDone: false },
+        { id: 'pharma', industry: '医薬品産業', name: 'ノヴァ・ファーマシューティカル', cost: 95000, dividend: 6200, shareAdd: 10.0, acquired: false, pmiDone: false },
+        { id: 'chemical', industry: '化学工業', name: 'アドバンスド・ケミカル', cost: 140000, dividend: 9000, shareAdd: 11.0, acquired: false, pmiDone: false },
+        { id: 'it', industry: '情報通信・IT産業', name: 'ワールド・サーチ＆クラウド', cost: 220000, dividend: 14000, shareAdd: 13.0, acquired: false, pmiDone: false },
+        { id: 'auto', industry: '自動車産業', name: 'トータル・モビリティ', cost: 350000, dividend: 22000, shareAdd: 15.0, acquired: false, pmiDone: false },
+        { id: 'finance', industry: '金融・保険業', name: 'メガ・ファイナンシャル・グループ', cost: 500000, dividend: 31000, shareAdd: 18.0, acquired: false, pmiDone: false },
+        { id: 'electronics', industry: '電気・電子機器産業', name: 'エレクトロニクス・インターナショナル', cost: 680000, dividend: 42000, shareAdd: 20.0, acquired: false, pmiDone: false },
+        { id: 'energy', industry: 'エネルギー産業（電力・ガス）', name: 'グローバル・パワー＆エナジー', cost: 900000, dividend: 55000, shareAdd: 22.0, acquired: false }
+    ],
+
+    // 海外エリア
+    globalRegions: [
+        { id: 'asia', name: 'アジア太平洋', cost: 100, profitUSD: 1.0, risk: 5, acquired: false },
+        { id: 'north_america', name: '北米エリア', cost: 500, profitUSD: 4.5, risk: 10, acquired: false },
+        { id: 'europe', name: '欧州エリア', cost: 1200, profitUSD: 10.0, risk: 8, acquired: false },
+        { id: 'middle_east', name: '中東エリア', cost: 3000, profitUSD: 24.0, risk: 20, acquired: false },
+        { id: 'south_america', name: '南米エリア', cost: 8000, profitUSD: 60.0, risk: 15, acquired: false }
+    ],
+
+    // 地域メガコーポボス
+    megaCorps: [
+        { id: 'boss_us', name: '米アトランティス・グループ', power: 5000, defeated: false },
+        { id: 'boss_eu', name: 'ユーロ・ダイナミクス', power: 15000, defeated: false },
+        { id: 'boss_asia', name: '大亜細亜コンツェルン', power: 50000, defeated: false }
     ]
 };
 
-function addGameLog(message) {
-    const timestamp = `[${GameState.year}年 Q${GameState.quarter}]`;
-    GameState.logs.unshift(`${timestamp} ${message}`);
+function formatMoney(valInOku) {
+    if (valInOku === 0) return "0.0億円";
+    const sign = valInOku < 0 ? "-" : "";
+    const absVal = Math.abs(valInOku);
+
+    if (absVal >= 10000) {
+        const cho = Math.floor(absVal / 10000);
+        const oku = (absVal % 10000).toFixed(1);
+        if (parseFloat(oku) === 0) return sign + cho + "兆円";
+        return sign + cho + "兆" + oku + "億円";
+    }
+    return sign + absVal.toFixed(1) + "億円";
+}
+
+function addGameLog(msg) {
+    const time = `[${GameState.year}年 Q${GameState.quarter}]`;
+    GameState.logs.unshift(`${time} ${msg}`);
     const box = document.getElementById('log-box');
     if (box) box.innerHTML = GameState.logs.join('<br>');
 }
 
-function formatMoney(val) {
-    const oku = val / 100000000;
-    if (Math.abs(oku) >= 10000) {
-        return (oku / 10000).toFixed(1) + "兆円";
-    }
-    return oku.toFixed(1) + "億円";
-}
-
-// 経営アクション関数
-function hireEmployees(role, count) {
-    const cost = 5000000 * count;
+// 国内設備投資
+function investFacility(type, cost) {
+    if (GameState.gameOver) return;
     if (GameState.cash < cost) return alert("資金不足です。");
     GameState.cash -= cost;
-    if (role === 'eng') GameState.staffEngineers += count;
+    if (type === 'plant') GameState.plants++;
+    if (type === 'data') GameState.dataBases++;
+    if (type === 'logistics') GameState.logistics++;
+    addGameLog(`🏭 国内創業事業に投資（${cost}億円）`);
+    updateUI();
+}
+
+// 人事管理
+function hireStaff(role, count, cost) {
+    if (GameState.cash < cost) return alert("資金不足です。");
+    GameState.cash -= cost;
+    if (role === 'eng') GameState.staffEng += count;
     if (role === 'sales') GameState.staffSales += count;
-    if (role === 'mgr') GameState.staffManagers += count;
-    addGameLog(`👥 ${role} を ${count}名 採用しました。`);
+    addGameLog(`👥 ${role.toUpperCase()} を ${count}名 採用しました。`);
     updateUI();
 }
 
-function holdCorporateTraining() {
-    if (GameState.cash < 20000000) return alert("資金不足です。");
-    GameState.cash -= 20000000;
+function holdTraining(cost) {
+    if (GameState.cash < cost) return alert("資金不足です。");
+    GameState.cash -= cost;
     GameState.employeeMotivation = Math.min(100, GameState.employeeMotivation + 15);
-    GameState.sectionalismLevel = Math.max(0, GameState.sectionalismLevel - 10);
-    addGameLog("🎯 社員研修を実施。組織のセクショナリズムが低下しました。");
+    GameState.sectionalismLevel = Math.max(0, GameState.sectionalismLevel - 8);
+    addGameLog("🎯 全社研修を実施。モチベーション向上・セクショナリズム低減。");
     updateUI();
 }
 
-function setSupplyChainMode(mode) {
+function raiseSalary() {
+    GameState.salaryLevel += 10;
+    GameState.employeeMotivation = Math.min(100, GameState.employeeMotivation + 10);
+    addGameLog("💰 給料水準を10%引き上げました。");
+    updateUI();
+}
+
+// SCM & 資金調達
+function toggleSCM(mode) {
     GameState.supplyChain = mode;
-    addGameLog(`📦 サプライチェーンを ${mode} に切り替えました。`);
-    updateUI();
-}
-
-function investInPR(amount) {
-    if (GameState.cash < amount) return alert("資金不足です。");
-    GameState.cash -= amount;
-    GameState.snsReputation = Math.min(100, GameState.snsReputation + 10);
-    addGameLog("📢 PR活動を展開。SNS評価が向上しました。");
+    addGameLog(`📦 サプライチェーンを ${mode} に変更。`);
     updateUI();
 }
 
 function takeBankLoan(amount) {
     GameState.cash += amount;
     GameState.loanBalance += amount;
-    addGameLog(`🏦 銀行融資で ${formatMoney(amount)} を調達しました。`);
+    addGameLog(`🏦 銀行融資実行: +${formatMoney(amount)}`);
     updateUI();
 }
 
-function executeMergerAndAcquisition(targetId) {
-    const target = GameState.maTargets.find(t => t.id === targetId);
-    if (!target || target.acquired) return;
-    if (GameState.cash < target.cost) return alert("買収資金が不足しています。");
-
-    GameState.cash -= target.cost;
-    target.acquired = true;
-    GameState.globalShare += target.shareAdd;
-    addGameLog(`🎉【M&A成功】${target.name} のTOBが完了！シェア+${target.shareAdd}%`);
+function investPR(cost) {
+    if (GameState.cash < cost) return alert("資金不足です。");
+    GameState.cash -= cost;
+    GameState.snsReputation = Math.min(100, GameState.snsReputation + 15);
+    addGameLog("📢 広報PR活動を実施。SNS評判向上。");
     updateUI();
 }
 
-function investInLocalization() {
-    if (GameState.cash < 3000000000) return alert("資金不足です。");
-    GameState.cash -= 3000000000;
-    GameState.geopoliticalRisk = Math.max(0, GameState.geopoliticalRisk - 15);
-    addGameLog("🌍 現地化投資を実行。地政学リスクを軽減しました。");
+// 地政学 & ロビー
+function investLocalization(cost) {
+    if (GameState.cash < cost) return alert("資金不足です。");
+    GameState.cash -= cost;
+    GameState.geopoliticalRisk = Math.max(0, GameState.geopoliticalRisk - 10);
+    addGameLog("🌍 現地化投資を実行。地政学リスク軽減。");
     updateUI();
 }
 
-function executeLobbying() {
-    if (GameState.cash < 5000000000) return alert("資金不足です。");
-    GameState.cash -= 5000000000;
-    GameState.lobbyingPower = Math.min(100, GameState.lobbyingPower + 20);
-    addGameLog("🏛️ ロビー活動を実施。政治的影響力が上昇。");
+function executeLobbying(cost) {
+    if (GameState.cash < cost) return alert("資金不足です。");
+    GameState.cash -= cost;
+    GameState.lobbyingPower = Math.min(100, GameState.lobbyingPower + 15);
+    if (GameState.lobbyingPower >= 80 && !GameState.isDefactoStandard) {
+        GameState.isDefactoStandard = true;
+        addGameLog("🏛️【政治的勝利】自社規格が世界標準（デファクトスタンダード）に認定！");
+    } else {
+        addGameLog("🏛️ 政治ロビー活動を実行。影響力を強化。");
+    }
     updateUI();
 }
 
-// メガプロジェクト＆個人投資
-function investInESG() {
-    if (GameState.cash < 5000000000) return alert("資金不足です。");
-    GameState.cash -= 5000000000;
+function buyRegion(id) {
+    const r = GameState.globalRegions.find(item => item.id === id);
+    if (!r || r.acquired) return;
+    if (GameState.cash < r.cost) return alert("資金不足です。");
+    GameState.cash -= r.cost;
+    r.acquired = true;
+    addGameLog(`🌍 海外進出成功: ${r.name}`);
+    updateUI();
+}
+
+function fightMegaCorp(id) {
+    const m = GameState.megaCorps.find(item => item.id === id);
+    if (!m || m.defeated) return;
+    const totalPower = GameState.cash + (GameState.staffSales * 10);
+    if (totalPower < m.power) return alert("競合メガコーポに対抗する企業規模が不足しています。");
+    m.defeated = true;
+    addGameLog(`⚔️【メガコーポ撃破】${m.name} の市場シェアを完全に奪取しました！`);
+    updateUI();
+}
+
+// M&A & PMI
+function buyCompany(id) {
+    const t = GameState.maTargets.find(item => item.id === id);
+    if (!t || t.acquired) return;
+    if (GameState.cash < t.cost) return alert("資金不足です。");
+    GameState.cash -= t.cost;
+    t.acquired = true;
+    addGameLog(`🤝【M&A成功】${t.name} のTOBを完了！`);
+    updateUI();
+}
+
+function executePMI(id) {
+    const t = GameState.maTargets.find(item => item.id === id);
+    if (!t || !t.acquired || t.pmiDone) return;
+    const pmiCost = t.cost * 0.1;
+    if (GameState.cash < pmiCost) return alert("PMI統合費用が不足しています。");
+    GameState.cash -= pmiCost;
+    t.pmiDone = true;
+    addGameLog(`⚙️【PMI完了】${t.name} の組織統合が成功。配当効率が1.5倍に向上。`);
+    updateUI();
+}
+
+// CSR & メガプロジェクト & CEOプライベート
+function investESG(cost) {
+    if (GameState.cash < cost) return alert("資金不足です。");
+    GameState.cash -= cost;
     GameState.esgScore += 25;
-    GameState.taxDiscount = Math.min(0.15, GameState.taxDiscount + 0.05);
-    addGameLog("🌱 ESG投資を実施。優遇税制（-5%）を獲得。");
+    GameState.taxDiscount = Math.min(0.2, GameState.taxDiscount + 0.05);
+    addGameLog("🌱 ESG投資を実施。税率優遇と好感度を獲得。");
     updateUI();
 }
 
-function buySportsTeam() {
-    if (GameState.cash < 15000000000 || GameState.hasProTeam) return alert("資金不足または購入済みです。");
-    GameState.cash -= 15000000000;
+function buySportsTeam(cost) {
+    if (GameState.cash < cost || GameState.hasProTeam) return;
+    GameState.cash -= cost;
     GameState.hasProTeam = true;
-    GameState.brandValue = Math.min(100, GameState.brandValue + 20);
-    addGameLog("⚾ プロ球団を買収。ブランド価値が大幅上昇！");
+    GameState.snsReputation = Math.min(100, GameState.snsReputation + 25);
+    addGameLog("⚾ プロスポーツチームを買収しました。");
     updateUI();
 }
 
-function buildSmartCity() {
-    if (GameState.cash < 50000000000 || GameState.smartCityBuilt) return alert("資金不足または建設済みです。");
-    GameState.cash -= 50000000000;
+function buildSmartCity(cost) {
+    if (GameState.cash < cost || GameState.smartCityBuilt) return;
+    GameState.cash -= cost;
     GameState.smartCityBuilt = true;
-    GameState.worldGdpShare += 1.5;
-    addGameLog("🏙️ スマートシティ完成！世界GDPシェアが向上しました。");
+    addGameLog("🏙️【国家インフラ】自社主導のスマートシティが完成！");
     updateUI();
 }
 
-function investSpaceProject() {
-    if (GameState.cash < 100000000000 || GameState.spaceProjectBuilt) return alert("資金不足または出資済みです。");
-    GameState.cash -= 100000000000;
+function investSpaceProject(cost) {
+    if (GameState.cash < cost || GameState.spaceProjectBuilt) return;
+    GameState.cash -= cost;
     GameState.spaceProjectBuilt = true;
-    GameState.worldGdpShare += 3.0;
-    addGameLog("🚀 国家規模の宇宙開発プロジェクトを完了！世界GDPシェア+3.0%");
+    addGameLog("🚀【メガプロジェクト】宇宙開発計画が稼働しました！");
     updateUI();
 }
 
-function buyHeadquarters() {
-    if (GameState.cash < 30000000000 || GameState.headquartersBuilt) return alert("資金不足または建設済みです。");
-    GameState.cash -= 30000000000;
+function buyHeadquarters(cost) {
+    if (GameState.cash < cost || GameState.headquartersBuilt) return;
+    GameState.cash -= cost;
     GameState.headquartersBuilt = true;
-    GameState.ceoPrivateAssets += 30000000000;
-    addGameLog("🏢 80層の超高層本社ビルを竣工。個人資産が増大しました。");
+    GameState.ceoAssets += cost;
+    addGameLog("🏢 超高層ビル本社を建設しました。");
     updateUI();
 }
 
-function buyPrivateJet() {
-    if (GameState.cash < 10000000000 || GameState.privateJetBought) return alert("資金不足または購入済みです。");
-    GameState.cash -= 10000000000;
+function buyPrivateJet(cost) {
+    if (GameState.cash < cost || GameState.privateJetBought) return;
+    GameState.cash -= cost;
     GameState.privateJetBought = true;
-    GameState.ceoPrivateAssets += 10000000000;
-    addGameLog("✈️ CEO専用プライベートジェットを購入。");
+    GameState.ceoAssets += cost;
+    addGameLog("✈️ プライベートジェットを購入しました。");
     updateUI();
 }
 
-// 決算進行
-function nextQuarter() {
-    if (GameState.gameOver) return alert("破産しているため進行できません。");
+function buildCEOHouse(cost) {
+    if (GameState.ceoAssets < cost || GameState.ceoHouseBuilt) return alert("個人資産不足または建設済みです。");
+    GameState.ceoAssets -= cost;
+    GameState.ceoHouseBuilt = true;
+    addGameLog("🏡【個人投資】CEO個人の豪華大邸宅が完成しました。");
+    updateUI();
+}
 
-    // 1. マクロ経済動向
-    const roll = Math.random();
-    if (roll < 0.15) {
-        GameState.economicTrend = '高インフレ';
+function developPrivateTown(cost) {
+    if (GameState.ceoAssets < cost || GameState.privateTownBuilt) return alert("個人資産不足または開拓済みです。");
+    GameState.ceoAssets -= cost;
+    GameState.privateTownBuilt = true;
+    addGameLog("🏞️【個人投資】個人所有の未開土地を開拓し、独自の街を建設しました！");
+    updateUI();
+}
+
+// ターン進行
+function nextQuarter() {
+    if (GameState.gameOver) return alert("破産しているため進めません。");
+
+    // 1. 動的経済トレンド
+    const rand = Math.random();
+    if (rand < 0.15) {
+        GameState.economicTrend = '原材料高騰インフレ';
         GameState.costMultiplier = 1.3;
         GameState.demandMultiplier = 0.9;
-    } else if (roll < 0.30) {
-        GameState.economicTrend = 'グローバルバズ';
+    } else if (rand < 0.3) {
+        GameState.economicTrend = 'バズり需要増';
         GameState.costMultiplier = 1.0;
-        GameState.demandMultiplier = 1.7;
+        GameState.demandMultiplier = 1.6;
+    } else if (rand < 0.4) {
+        GameState.economicTrend = '悪天候・物流遅延';
+        GameState.costMultiplier = 1.2;
+        GameState.demandMultiplier = 0.8;
     } else {
         GameState.economicTrend = '安定';
         GameState.costMultiplier = 1.0;
         GameState.demandMultiplier = 1.0;
     }
 
-    // 2. 収益・配当計算
-    let baseRevenue = (GameState.staffSales * 50000000) * GameState.demandMultiplier * (GameState.globalShare / 1.0);
-    let baseCost = (GameState.staffEngineers * 30000000) * GameState.costMultiplier;
-    
-    // M&A配当
-    let maDividends = 0;
-    GameState.maTargets.forEach(t => { if (t.acquired) maDividends += (t.dividend / 4); });
+    // 為替変動
+    GameState.exchangeRate = Math.min(170, Math.max(130, GameState.exchangeRate + (Math.random() - 0.5) * 6));
 
-    let netProfit = baseRevenue + maDividends - baseCost;
+    // 2. 売掛金・買掛金フロー（黒字倒産リスク）
+    GameState.cash += GameState.accountsReceivable;
+    GameState.cash -= GameState.accountsPayable;
+
+    // 3. 創業事業収益
+    const ownRevenue = ((GameState.plants * 0.8) + (GameState.dataBases * 2.5) + (GameState.logistics * 7.0)) * GameState.demandMultiplier;
+
+    // 4. 海外収益
+    let globalRev = 0;
+    GameState.globalRegions.forEach(r => {
+        if (r.acquired) {
+            globalRev += (r.profitUSD * GameState.exchangeRate / 10) * (1 - GameState.geopoliticalRisk / 100);
+        }
+    });
+
+    // 5. M&A配当 (PMI未完了なら50%に減少)
+    let maRev = 0;
+    GameState.maTargets.forEach(t => {
+        if (t.acquired) {
+            const mult = t.pmiDone ? 1.5 : 0.5;
+            maRev += (t.dividend / 4) * mult;
+        }
+    });
+
+    // 6. 組織コスト & 規模の不経済
+    const staffCost = (GameState.staffEng * 0.15 + GameState.staffSales * 0.25 + GameState.staffMgr * 0.3) * (GameState.salaryLevel / 100);
+    const totalAcquired = GameState.maTargets.filter(t => t.acquired).length;
+    const totalRegions = GameState.globalRegions.filter(r => r.acquired).length;
+
+    // セクショナリズムと規模によるコスト膨張
+    const overhead = 0.5 + Math.pow(totalAcquired, 1.35) * 6.0 + (totalRegions * 12.0) + (GameState.sectionalismLevel * 0.5);
+    GameState.lastOverhead = overhead;
+
+    // 純利益計算（税制優遇反映）
+    const grossProfit = ownRevenue + globalRev + maRev - staffCost;
+    const taxRate = 0.3 - GameState.taxDiscount;
+    const netProfit = grossProfit > 0 ? (grossProfit - overhead) * (1 - taxRate) : (grossProfit - overhead);
+    
     GameState.lastNetProfit = netProfit;
     GameState.cash += netProfit;
 
-    // 黒字倒産・破産判定
+    // 次期の売掛/買掛設定
+    GameState.accountsReceivable = Math.max(0, netProfit * 0.3);
+    GameState.accountsPayable = Math.max(0, staffCost * 0.2);
+
+    // モチベーション自然減滅・離職発生
+    GameState.employeeMotivation = Math.max(20, GameState.employeeMotivation - 3);
+    if (GameState.employeeMotivation < 40) {
+        GameState.staffSales = Math.max(1, GameState.staffSales - 1);
+        addGameLog("⚠️ モチベーション低下により社員が離職しました。");
+    }
+
+    addGameLog(`📊 決算: 純利益 ${formatMoney(netProfit)} (経費: ${formatMoney(overhead)})`);
+
+    // 7. 破産判定（黒字倒産含む）
     if (GameState.cash < 0) {
         GameState.gameOver = true;
-        alert("💥 資金ショートにより破産しました。");
+        addGameLog("💥【破産判定】資金ショートが発生。黒字倒産/破産となりました。");
+        alert("💥 資金ショート（破産）が発生しました。ゲームオーバーです。");
     }
 
-    // カレンダー
-    GameState.quarter += 1;
+    // 8. 勝利条件判定
+    checkVictoryConditions();
+
+    GameState.quarter++;
     if (GameState.quarter > 4) {
         GameState.quarter = 1;
-        GameState.year += 1;
+        GameState.year++;
     }
 
-    addGameLog(`📊 決算完了: 四半期純利益 ${formatMoney(netProfit)}`);
     updateUI();
+}
+
+function checkVictoryConditions() {
+    if (GameState.gameCleared) return;
+
+    const totalAcquired = GameState.maTargets.filter(t => t.acquired).length;
+    let totalShare = 0.5;
+    GameState.maTargets.forEach(t => { if (t.acquired) totalShare += t.shareAdd; });
+
+    if (totalAcquired >= 19) {
+        GameState.gameCleared = true;
+        alert("🎉【ゲームクリア】全19産業を傘下に収め、市場完全独占を達成しました！");
+    } else if (totalShare >= 50.0) {
+        GameState.gameCleared = true;
+        alert("🎉【ゲームクリア】世界市場シェア過半数を獲得し、世界経済の支配者となりました！");
+    } else if (GameState.isDefactoStandard) {
+        GameState.gameCleared = true;
+        alert("🎉【ゲームクリア】世界標準（デファクトスタンダード）を確立し、世界制覇を達成しました！");
+    }
 }
 
 function updateUI() {
     document.getElementById('cash-display').innerText = formatMoney(GameState.cash);
     document.getElementById('date-display').innerText = `${GameState.year}年 Q${GameState.quarter}`;
     document.getElementById('profit-display').innerText = formatMoney(GameState.lastNetProfit);
-    document.getElementById('share-display').innerText = GameState.globalShare.toFixed(1) + "%";
-    document.getElementById('trend-display').innerText = GameState.economicTrend;
-    document.getElementById('asset-display').innerText = formatMoney(GameState.ceoPrivateAssets);
+    document.getElementById('cashflow-display').innerText = `${formatMoney(GameState.accountsReceivable)} / ${formatMoney(GameState.accountsPayable)}`;
+    document.getElementById('fx-display').innerText = `${GameState.exchangeRate.toFixed(0)}円 | ${GameState.economicTrend}`;
+    document.getElementById('org-display').innerText = `${GameState.employeeMotivation}% | ${GameState.sectionalismLevel}%`;
+    document.getElementById('rep-display').innerText = `${GameState.snsReputation} / ${GameState.esgScore}`;
+    document.getElementById('ceo-asset-display').innerText = formatMoney(GameState.ceoAssets);
 
+    document.getElementById('plant-count').innerText = GameState.plants;
+    document.getElementById('data-count').innerText = GameState.dataBases;
+    document.getElementById('logistics-count').innerText = GameState.logistics;
+
+    renderGlobalUI();
     renderMAUI();
+}
+
+function renderGlobalUI() {
+    const regContainer = document.getElementById('global-region-list');
+    if (regContainer) {
+        let html = '<div class="card"><div class="card-title">🌐 海外進出エリア</div><div class="btn-grid">';
+        GameState.globalRegions.forEach(r => {
+            if (r.acquired) {
+                html += `<button class="btn btn-success" disabled>✅ ${r.name} (進出済)</button>`;
+            } else {
+                html += `<button class="btn btn-primary" onclick="buyRegion('${r.id}')">${r.name} (${formatMoney(r.cost)})</button>`;
+            }
+        });
+        html += '</div></div>';
+        regContainer.innerHTML = html;
+    }
+
+    const megaContainer = document.getElementById('megacorp-list');
+    if (megaContainer) {
+        let html = '<div class="card"><div class="card-title">⚔️ 競合メガコーポ対決</div><div class="btn-grid">';
+        GameState.megaCorps.forEach(m => {
+            if (m.defeated) {
+                html += `<button class="btn btn-success" disabled>🏆 ${m.name} (撃破)</button>`;
+            } else {
+                html += `<button class="btn btn-danger" onclick="fightMegaCorp('${m.id}')">${m.name} と対決</button>`;
+            }
+        });
+        html += '</div></div>';
+        megaContainer.innerHTML = html;
+    }
 }
 
 function renderMAUI() {
     const container = document.getElementById('ma-list');
     if (!container) return;
     let html = '';
+
     GameState.maTargets.forEach(t => {
         if (t.acquired) {
-            html += `<div class="card" style="border-color:#10b981;">
-                <div class="card-title"><span>✅ ${t.name}</span> <span class="card-badge" style="background:#10b981; color:white;">完全子会社</span></div>
-                <div class="card-desc">業界配当を還元中</div>
-                <div class="card-info"><span>四半期配当: <b>+${formatMoney(t.dividend / 4)}</b></span></div>
+            const pmiBtn = t.pmiDone 
+                ? `<span class="card-badge" style="background:var(--accent-green); color:white;">PMI完了 (1.5倍配当)</span>`
+                : `<button class="btn btn-purple" onclick="executePMI('${t.id}')">組織統合PMIを実行 (${formatMoney(t.cost * 0.1)})</button>`;
+
+            html += `
+            <div class="card" style="border-color: var(--accent-green);">
+                <div class="card-title">
+                    <span>✅ ${t.name}</span>
+                    ${pmiBtn}
+                </div>
+                <div class="card-desc">業界: ${t.industry} | シェア寄与: +${t.shareAdd}%</div>
             </div>`;
         } else {
-            html += `<div class="card">
-                <div class="card-title"><span>🏢 ${t.name}</span> <span class="card-badge">${t.industry}</span></div>
-                <div class="card-info"><span>買収額: <b>${formatMoney(t.cost)}</b></span><span>想定配当: <b>+${formatMoney(t.dividend / 4)}/Q</b></span></div>
-                <button class="btn btn-danger" onclick="executeMergerAndAcquisition('${t.id}')">${formatMoney(t.cost)} で買収</button>
+            html += `
+            <div class="card">
+                <div class="card-title">
+                    <span>🏢 ${t.name}</span>
+                    <span class="card-badge">${t.industry}</span>
+                </div>
+                <div class="card-info">
+                    <span>買収費: <b>${formatMoney(t.cost)}</b></span>
+                    <span>配当: <b>+${formatMoney(t.dividend / 4)}/期</b></span>
+                </div>
+                <button class="btn btn-danger" onclick="buyCompany('${t.id}')">${formatMoney(t.cost)} でTOB買収</button>
             </div>`;
         }
     });
+
     container.innerHTML = html;
 }
 
@@ -553,7 +826,7 @@ function switchPage(pageId, btnEl) {
     btnEl.classList.add('active');
 }
 
-addGameLog("ゲーム開始。全17産業のM&Aとグローバル帝国の構築を目指してください。");
+addGameLog("全要素搭載シミュレーター起動: 創業企業から世界覇権・個人資産の開拓を目指してください。");
 updateUI();
 </script>
 </body>
